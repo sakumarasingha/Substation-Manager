@@ -1,0 +1,25 @@
+﻿@page "/customers/edit/{id:int}"
+@using SM.Shared
+@using SM.WebPwa.Pages.Customers.Shared
+@inject HttpClient Http
+@inject NavigationManager NavigationManager
+
+<h3>Edit Customer</h3>
+
+<CustomerForm Customer="customer" OnValidSubmit="HandleValidSubmit" />
+
+@code {
+    [Parameter] public int id { get; set; }
+    private Customer? customer = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        customer = await Http.GetFromJsonAsync<Customer>($"http://localhost:5124/customers/{id}");
+    }
+
+    async Task HandleValidSubmit(Customer updatedCustomer)
+    {
+        var response = await Http.PutAsJsonAsync("http://localhost:5124/customers", updatedCustomer);
+        NavigationManager.NavigateTo("/customers");
+    }
+}

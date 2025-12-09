@@ -1,0 +1,54 @@
+﻿@page "/customers"
+@using SM.Shared
+@inject HttpClient Http
+@inject NavigationManager NavigationManager
+
+
+<PageTitle>Customers</PageTitle>
+
+<h1>Customers</h1>
+<!-- Form to add a new customer -->
+<div class="mb-3">
+    <button @onclick="GoToCreate">Add New Customer</button>
+</div>
+@if (customers == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Email</th>
+                <th>Phone</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var customer in customers)
+            {
+                <tr>
+                    <td>@customer.Name</td>
+                    <td>@customer.Email</td>
+                    <td>@customer.Phone</td>
+                    <td>
+                        <button @onclick="() => GoToEdit(customer.Id)">Edit</button>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@code {
+    private List<Customer> customers = new();
+    protected override async Task OnInitializedAsync()
+    {
+        customers = await Http.GetFromJsonAsync<List<Customer>>("http://localhost:5124/customers") ?? [];
+    }
+
+    void GoToCreate() => NavigationManager.NavigateTo("/customers/create");
+    void GoToEdit(int id) => NavigationManager.NavigateTo($"/customers/edit/{id}");
+}

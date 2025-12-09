@@ -1,0 +1,37 @@
+@using SM.Shared 
+@code {
+    [Parameter] public Customer Customer { get; set; } = new Customer();
+    [Parameter] public EventCallback<Customer> OnValidSubmit { get; set; }
+}
+
+
+<EditForm Model="Customer" OnValidSubmit="() => OnValidSubmit.InvokeAsync(Customer)" class="edit-form">
+    <h2 class="form-title">New Customer</h2>
+
+    <DataAnnotationsValidator />
+    <ValidationSummary class="validation-summary" />
+
+    <div class="form-field">
+        <label class="form-label" for="name">Name</label>
+        <InputText id="name" @bind-Value="Customer.Name" class="form-control" placeholder="Jane Doe" />
+        <ValidationMessage For="@(() => Customer.Name)" class="validation-message" />
+    </div>
+
+    <div class="form-field">
+        <label class="form-label" for="email">Email</label>
+        <InputText id="email" @bind-Value="Customer.Email" class="form-control" placeholder="jane.doe@example.com" />
+        <ValidationMessage For="@(() => Customer.Email)" class="validation-message" />
+    </div>
+
+    <div class="form-field">
+        <label class="form-label" for="phone">Phone</label>
+        <InputText id="phone" @bind-Value="Customer.Phone" class="form-control" placeholder="+61 4xx xxx xxx" />
+        <ValidationMessage For="@(() => Customer.Phone)" class="validation-message" />
+    </div>
+
+    <div class="flex-row mt-2">
+        <button type="submit" class="btn">Save</button>
+        <button type="button" class="btn btn-outline">Cancel</button>
+    </div>
+</EditForm>
+

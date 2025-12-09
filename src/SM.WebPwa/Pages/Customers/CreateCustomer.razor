@@ -1,0 +1,33 @@
+﻿@page "/customers/create"
+@using SM.Shared
+@using SM.WebPwa.Pages.Customers.Shared
+@inject HttpClient Http
+@inject NavigationManager NavigationManager
+
+<h3>Create Customer</h3>
+
+<CustomerForm Customer="newCustomer" OnValidSubmit="AddCustomer" />
+
+@code {
+    private Customer newCustomer = new();
+   
+    private async Task AddCustomer(Customer customer)
+    {
+        // POST to your API
+        var response = await Http.PostAsJsonAsync("http://localhost:5124/customers", newCustomer);
+
+        if (response.IsSuccessStatusCode)
+        {
+            // Optionally read back the created customer
+            var created = await response.Content.ReadFromJsonAsync<Customer>();
+            if (created is not null)
+            {
+               NavigationManager.NavigateTo("/customers");
+            }
+        }
+        else
+        {
+            // Handle error (log, show message, etc.)
+        }
+    }
+}
