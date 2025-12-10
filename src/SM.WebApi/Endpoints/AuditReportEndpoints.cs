@@ -34,7 +34,7 @@ public static class AuditReportEndpoints
         });
 
         // GET by id
-        group.MapGet("/{id:int}", async (int id, IRepository<TransformerAuditReport> repo) =>
+        group.MapGet("/{id:guid}", async (Guid id, IRepository<TransformerAuditReport> repo) =>
         {
             var entity = await repo.GetByIdAsync(id);
             if (entity is null) return Results.NotFound();
@@ -102,8 +102,8 @@ public static class AuditReportEndpoints
         });
 
         // PUT (update)
-        group.MapPut("/{id:int}", async (
-            int id,
+        group.MapPut("/{id:guid}", async (
+            Guid id,
             AuditReportCreateDto dto,
             IRepository<TransformerAuditReport> repo,
             IValidator<AuditReportCreateDto> validator) =>
@@ -148,7 +148,7 @@ public static class AuditReportEndpoints
         });
 
         // DELETE
-        group.MapDelete("/{id:int}", async (int id, IRepository<TransformerAuditReport> repo) =>
+        group.MapDelete("/{id:guid}", async (Guid id, IRepository<TransformerAuditReport> repo) =>
         {
             var existing = await repo.GetByIdAsync(id);
             if (existing is null) return Results.NotFound();

@@ -6,7 +6,7 @@ public class Asset
     public int AssetTypeId { get; set; }
     public required DateTime InstallationDate { get; set; } = DateTime.UtcNow;
     public int SubstationId { get; set; }
-    public Substation? Substation { get; set; }
+    public SubstationDto? Substation { get; set; }
     public required string Status { get; set; } = "Active";
 
     // Navigation
@@ -21,28 +21,6 @@ public class AssetType
 
 }
 
-public class Customer
-{
-    public int Id { get; set; }
-    public string Name { get; set; } = string.Empty;
-    public string Email { get; set; } = string.Empty;
-    public string Phone { get; set; } = string.Empty;
-    public List<Substation> Substations { get; set; } = new();
-}
-
-public class Substation
-{
-    public int Id { get; set; }
-    public string Name { get; set; } = string.Empty;
-    public int CustomerId { get; set; }
-    public Customer? Customer { get; set; }
-
-    public string? Description { get; set; }
-
-    public string? Location { get; set; }
-    
-    public List<Transformer> Transformers { get; set; } = new();
-}
 
 public class Transformer
 {

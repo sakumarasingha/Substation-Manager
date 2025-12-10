@@ -1,0 +1,61 @@
+@using SM.Shared
+@inject HttpClient Http
+@inject NavigationManager Nav
+@code {
+    [Parameter] public SubstationDto Substation { get; set; } = new SubstationDto();
+    [Parameter] public EventCallback<SubstationDto> OnValidSubmit { get; set; }
+
+    private void Cancel()
+    {
+        // Navigate to the Substation list page
+        Nav.NavigateTo("/substations");
+    }
+
+    private List<CustomerDto> customers = new();
+    protected override async Task OnInitializedAsync()
+    {
+        customers = await Http.GetFromJsonAsync<List<CustomerDto>>("http://localhost:5124/customers") ?? [];
+    }
+}
+
+
+<EditForm Model="Substation" OnValidSubmit="() => OnValidSubmit.InvokeAsync(Substation)" class="edit-form">
+    <h2 class="form-title">New Substation</h2>
+
+    <DataAnnotationsValidator />
+    <ValidationSummary class="validation-summary" />
+
+    <!-- Customer dropdown -->
+    <div class="form-field">
+        <label class="form-label" for="customer">Customer</label>
+        <InputSelect id="customer" @bind-Value="Substation.CustomerId" class="form-control">
+            <option value="">-- Select Customer --</option>
+            @if (customers is not null)
+            {
+                @foreach (var c in customers)
+                {
+                    <option value="@c.Id">@c.Code - @c.Name</option>
+                }
+            }
+        </InputSelect>
+        <ValidationMessage For="@(() => Substation.CustomerId)" class="validation-message" />
+    </div>
+
+    <div class="form-field">
+        <label class="form-label" for="name">Name</label>
+        <InputText id="name" @bind-Value="Substation.Name" class="form-control" placeholder="Test Plant" />
+        <ValidationMessage For="@(() => Substation.Name)" class="validation-message" />
+    </div>
+
+
+    <div class="form-field">
+        <label class="form-label" for="name">Code</label>
+        <InputText id="name" @bind-Value="Substation.Code" class="form-control" placeholder="SUB001" />
+        <ValidationMessage For="@(() => Substation.Code)" class="validation-message" />
+    </div>
+
+    <div class="flex-row mt-2">
+        <button type="submit" class="btn">Save</button>
+        <button type="button" class="btn btn-outline" @onclick="Cancel">Cancel</button>
+    </div>
+</EditForm>

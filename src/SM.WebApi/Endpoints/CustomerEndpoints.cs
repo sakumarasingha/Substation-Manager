@@ -1,5 +1,5 @@
 using FluentValidation;
-using SM.WebApi.Contracts;
+using SM.Shared;
 using SM.WebApi.Domain;
 using SM.WebApi.Infrastructure;
 
@@ -20,31 +20,54 @@ public static class CustomerEndpoints
             {
                 Id = c.Id,
                 Name = c.Name,
-                Email = c.Email
+                Code = c.Code,
+                PrimaryEmail = c.PrimaryEmail,
+                PrimaryPhone = c.PrimaryPhone
             });
             return Results.Ok(result);
         });
 
         // GET by id
-        group.MapGet("/{id:int}", async (int id, IRepository<Customer> repo) =>
+        group.MapGet("/{id:guid}", async (Guid id, IRepository<Customer> repo) =>
         {
             var entity = await repo.GetByIdAsync(id);
             if (entity is null) return Results.NotFound();
-
             var dto = new CustomerDto
             {
                 Id = entity.Id,
                 Name = entity.Name,
-                Email = entity.Email
+                Code = entity.Code,
+                PrimaryEmail = entity.PrimaryEmail,
+                PrimaryPhone = entity.PrimaryPhone,
+                Alias = entity.Alias,
+                Status = (Shared.CustomerStatus)entity.Status,
+                BillingAddress = entity.BillingAddress is null ? null : new AddressDto
+                {
+                    Line1 = entity.BillingAddress.Line1,
+                    Line2 = entity.BillingAddress.Line2,
+                    City = entity.BillingAddress.City,
+                    StateOrProvince = entity.BillingAddress.StateOrProvince,
+                    PostalCode = entity.BillingAddress.PostalCode,
+                    Country = entity.BillingAddress.Country
+                },
+                SlaTier = entity.SlaTier,
+                Notes = entity.Notes,
+                AssetCount = entity.AssetCount,
+                ActiveWorkOrders = entity.ActiveWorkOrders,
+                CreatedAt = entity.CreatedAt,
+                CreatedBy = entity.CreatedBy,
+                UpdatedAt = entity.UpdatedAt,
+                UpdatedBy = entity.UpdatedBy
             };
+
             return Results.Ok(dto);
         });
 
         // POST (create)
         group.MapPost("/", async (
-            CustomerCreateDto dto,
+            CustomerDto dto,
             IRepository<Customer> repo,
-            IValidator<CustomerCreateDto> validator) =>
+            IValidator<CustomerDto> validator) =>
         {
             var validation = await validator.ValidateAsync(dto);
             if (!validation.IsValid)
@@ -53,8 +76,31 @@ public static class CustomerEndpoints
             var entity = new Customer
             {
                 Name = dto.Name,
-                Email = dto.Email
+                Code = dto.Code,
+                Alias = dto.Alias,
+                PrimaryEmail = dto.PrimaryEmail,
+                PrimaryPhone = dto.PrimaryPhone,
+                Website = dto.Website,
+                Status = (Domain.CustomerStatus)dto.Status,
+                SlaTier = dto.SlaTier,
+                Notes = dto.Notes,
+                TenantId = "00000000-0000-0000-0000-000000000000",
+
+                BillingAddress = dto.BillingAddress is null ? null : new Address
+                {
+                    Line1 = dto.BillingAddress.Line1,
+                    Line2 = dto.BillingAddress.Line2,
+                    City = dto.BillingAddress.City,
+                    StateOrProvince = dto.BillingAddress.StateOrProvince,
+                    PostalCode = dto.BillingAddress.PostalCode,
+                    Country = dto.BillingAddress.Country
+                },
+
+                // Audit fields (usually set by service layer)
+                CreatedAt = DateTimeOffset.UtcNow,
+                CreatedBy = "system"
             };
+
 
             await repo.AddAsync(entity);
             await repo.SaveChangesAsync();
@@ -63,18 +109,39 @@ public static class CustomerEndpoints
             {
                 Id = entity.Id,
                 Name = entity.Name,
-                Email = entity.Email
+                Code = entity.Code,
+                PrimaryEmail = entity.PrimaryEmail,
+                PrimaryPhone = entity.PrimaryPhone,
+                Alias = entity.Alias,
+                Status = (Shared.CustomerStatus)entity.Status,
+                BillingAddress = entity.BillingAddress is null ? null : new AddressDto
+                {
+                    Line1 = entity.BillingAddress.Line1,
+                    Line2 = entity.BillingAddress.Line2,
+                    City = entity.BillingAddress.City,
+                    StateOrProvince = entity.BillingAddress.StateOrProvince,
+                    PostalCode = entity.BillingAddress.PostalCode,
+                    Country = entity.BillingAddress.Country
+                },
+                SlaTier = entity.SlaTier,
+                Notes = entity.Notes,
+                AssetCount = entity.AssetCount,
+                ActiveWorkOrders = entity.ActiveWorkOrders,
+                CreatedAt = entity.CreatedAt,
+                CreatedBy = entity.CreatedBy,
+                UpdatedAt = entity.UpdatedAt,
+                UpdatedBy = entity.UpdatedBy
             };
 
             return Results.Created($"/customers/{entity.Id}", result);
         });
 
         // PUT (update)
-        group.MapPut("/{id:int}", async (
-            int id,
-            CustomerCreateDto dto,
+        group.MapPut("/{id:guid}", async (
+            Guid id,
+            CustomerDto dto,
             IRepository<Customer> repo,
-            IValidator<CustomerCreateDto> validator) =>
+            IValidator<CustomerDto> validator) =>
         {
             var validation = await validator.ValidateAsync(dto);
             if (!validation.IsValid)
@@ -83,8 +150,33 @@ public static class CustomerEndpoints
             var existing = await repo.GetByIdAsync(id);
             if (existing is null) return Results.NotFound();
 
+
+            // Assuming `existing` is the tracked entity from DbContext
             existing.Name = dto.Name;
-            existing.Email = dto.Email;
+            existing.PrimaryEmail = dto.PrimaryEmail;
+            existing.PrimaryPhone = dto.PrimaryPhone;
+            existing.Website = dto.Website;
+            existing.Alias = dto.Alias;
+            existing.Status = (Domain.CustomerStatus)dto.Status;
+            existing.SlaTier = dto.SlaTier;
+            existing.Notes = dto.Notes;
+
+            // Update nested addresses if provided
+            if (dto.BillingAddress != null)
+            {
+                existing.BillingAddress ??= new Address();
+                existing.BillingAddress.Line1 = dto.BillingAddress.Line1;
+                existing.BillingAddress.Line2 = dto.BillingAddress.Line2;
+                existing.BillingAddress.City = dto.BillingAddress.City;
+                existing.BillingAddress.StateOrProvince = dto.BillingAddress.StateOrProvince;
+                existing.BillingAddress.PostalCode = dto.BillingAddress.PostalCode;
+                existing.BillingAddress.Country = dto.BillingAddress.Country;
+            }
+
+
+            // Audit fields
+            existing.UpdatedAt = DateTimeOffset.UtcNow;
+
 
             repo.Update(existing);
             await repo.SaveChangesAsync();
@@ -93,14 +185,35 @@ public static class CustomerEndpoints
             {
                 Id = existing.Id,
                 Name = existing.Name,
-                Email = existing.Email
+                PrimaryEmail = existing.PrimaryEmail,
+                PrimaryPhone = existing.PrimaryPhone,
+                Alias = existing.Alias,
+                Status = (Shared.CustomerStatus)existing.Status,
+                BillingAddress = existing.BillingAddress is null ? null : new AddressDto
+                {
+                    Line1 = existing.BillingAddress.Line1,
+                    Line2 = existing.BillingAddress.Line2,
+                    City = existing.BillingAddress.City,
+                    StateOrProvince = existing.BillingAddress.StateOrProvince,
+                    PostalCode = existing.BillingAddress.PostalCode,
+                    Country = existing.BillingAddress.Country
+                },
+                SlaTier = existing.SlaTier,
+                Notes = existing.Notes,
+                AssetCount = existing.AssetCount,
+                ActiveWorkOrders = existing.ActiveWorkOrders,
+                CreatedAt = existing.CreatedAt,
+                CreatedBy = existing.CreatedBy,
+                UpdatedAt = existing.UpdatedAt,
+                UpdatedBy = existing.UpdatedBy
             };
+
 
             return Results.Ok(result);
         });
 
         // DELETE
-        group.MapDelete("/{id:int}", async (int id, IRepository<Customer> repo) =>
+        group.MapDelete("/{id:guid}", async (Guid id, IRepository<Customer> repo) =>
         {
             var existing = await repo.GetByIdAsync(id);
             if (existing is null) return Results.NotFound();

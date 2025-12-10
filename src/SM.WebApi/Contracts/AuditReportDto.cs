@@ -2,9 +2,9 @@ namespace SM.WebApi.Contracts;
 
 public class AuditReportDto
 {
-    public int Id { get; set; }
+    public Guid Id { get; set; }
     public string ReportNumber { get; set; } = string.Empty;
-    public int TransformerId { get; set; }
+    public Guid TransformerId { get; set; }
     public DateTime DateServiced { get; set; }
 
     public double? WindingTemperature { get; set; }
@@ -19,7 +19,7 @@ public class AuditReportDto
 public class AuditReportCreateDto
 {
     public string ReportNumber { get; set; } = string.Empty;
-    public int TransformerId { get; set; }
+    public Guid TransformerId { get; set; }
     public DateTime DateServiced { get; set; }
 
     public double? WindingTemperature { get; set; }

@@ -1,17 +1,19 @@
 using FluentValidation;
+using SM.Shared;
 using SM.WebApi.Contracts;
 
 namespace SM.WebApi.Validators;
 
-public class SubstationCreateValidator : AbstractValidator<SubstationCreateDto>
+public class SubstationCreateValidator : AbstractValidator<SubstationDto>
 {
     public SubstationCreateValidator()
     {
         RuleFor(x => x.Name)
             .NotEmpty().WithMessage("Substation name is required")
-            .MaximumLength(200);
+            .MaximumLength(256);
 
-        RuleFor(x => x.CustomerId)
-            .GreaterThan(0).WithMessage("CustomerId must be valid");
+        RuleFor(x => x.Code)
+            .NotEmpty().WithMessage("Substation code is required")
+            .MaximumLength(128);
     }
 }

@@ -1,0 +1,33 @@
+﻿@page "/substations/create"
+@using SM.Shared
+@using SM.WebPwa.Pages.Substations.Shared
+@inject HttpClient Http
+@inject NavigationManager NavigationManager
+
+<h3>Create Substation</h3>
+
+<SubstationForm Substation="newSubstation" OnValidSubmit="AddSubstations" />
+
+@code {
+    private SubstationDto newSubstation = new SubstationDto();
+   
+    private async Task AddSubstations(SubstationDto substation)
+    {
+        // POST to your API
+        var response = await Http.PostAsJsonAsync("http://localhost:5124/substations", newSubstation);
+
+        if (response.IsSuccessStatusCode)
+        {
+            // Optionally read back the created customer
+            var created = await response.Content.ReadFromJsonAsync<SubstationDto>();
+            if (created is not null)
+            {
+               NavigationManager.NavigateTo("/substations");
+            }
+        }
+        else
+        {
+            // Handle error (log, show message, etc.)
+        }
+    }
+}

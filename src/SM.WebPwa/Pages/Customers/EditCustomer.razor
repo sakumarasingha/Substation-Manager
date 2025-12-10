@@ -1,4 +1,4 @@
-﻿@page "/customers/edit/{id:int}"
+﻿@page "/customers/edit/{id:guid}"
 @using SM.Shared
 @using SM.WebPwa.Pages.Customers.Shared
 @inject HttpClient Http
@@ -9,17 +9,18 @@
 <CustomerForm Customer="customer" OnValidSubmit="HandleValidSubmit" />
 
 @code {
-    [Parameter] public int id { get; set; }
-    private Customer? customer = new();
+    [Parameter] public Guid id { get; set; }
+    private CustomerDto? customer = new();
 
     protected override async Task OnInitializedAsync()
     {
-        customer = await Http.GetFromJsonAsync<Customer>($"http://localhost:5124/customers/{id}");
+        customer = await Http.GetFromJsonAsync<CustomerDto>($"http://localhost:5124/customers/{id}");
     }
 
-    async Task HandleValidSubmit(Customer updatedCustomer)
+    async Task HandleValidSubmit(CustomerDto updatedCustomer)
     {
-        var response = await Http.PutAsJsonAsync("http://localhost:5124/customers", updatedCustomer);
+        var response = await Http.PutAsJsonAsync($"http://localhost:5124/customers/{id}", updatedCustomer);
         NavigationManager.NavigateTo("/customers");
     }
+
 }

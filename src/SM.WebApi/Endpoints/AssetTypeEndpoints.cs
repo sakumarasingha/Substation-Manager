@@ -25,7 +25,7 @@ public static class AssetTypeEndpoints
         });
 
         // GET by id
-        group.MapGet("/{id:int}", async (int id, IRepository<AssetType> repo) =>
+        group.MapGet("/{id:guid}", async (Guid id, IRepository<AssetType> repo) =>
         {
             var entity = await repo.GetByIdAsync(id);
             if (entity is null) return Results.NotFound();

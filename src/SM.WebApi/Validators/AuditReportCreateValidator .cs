@@ -1,5 +1,6 @@
 using FluentValidation;
 using SM.WebApi.Contracts;
+namespace SM.WebApi.Validators;
 
 public class AuditReportCreateValidator : AbstractValidator<AuditReportCreateDto>
 {
@@ -8,9 +9,6 @@ public class AuditReportCreateValidator : AbstractValidator<AuditReportCreateDto
         RuleFor(x => x.ReportNumber)
             .NotEmpty().WithMessage("Report number is required")
             .MaximumLength(100);
-
-        RuleFor(x => x.TransformerId)
-            .GreaterThan(0).WithMessage("TransformerId must be valid");
 
         RuleFor(x => x.DateServiced)
             .LessThanOrEqualTo(DateTime.UtcNow)

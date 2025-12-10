@@ -4,8 +4,8 @@ namespace SM.WebApi.Contracts;
 
 public class TransformerDto
 {
-    public int Id { get; set; }              // AssetId
-    public int SubstationId { get; set; }
+    public Guid Id { get; set; }              // AssetId
+    public Guid SubstationId { get; set; }
     public DateTime InstallationDate { get; set; }
     public required string Status { get; set; }
 
@@ -21,8 +21,8 @@ public class TransformerDto
 
 public class TransformerCreateDto
 {
-    public int SubstationId { get; set; }
-    public int AssetTypeId { get; set; }
+    public Guid SubstationId { get; set; }
+    public Guid AssetTypeId { get; set; }
     public DateTime InstallationDate { get; set; } = DateTime.UtcNow;
     public string Status { get; set; } = "Active";
 

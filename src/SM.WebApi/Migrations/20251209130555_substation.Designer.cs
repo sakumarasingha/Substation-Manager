@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using SM.WebApi.Infrastructure;
 
@@ -11,9 +12,11 @@ using SM.WebApi.Infrastructure;
 namespace SM.WebApi.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20251209130555_substation")]
+    partial class substation
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -259,7 +262,7 @@ namespace SM.WebApi.Migrations
                     b.Property<int>("Status")
                         .HasColumnType("int");
 
-                    b.Property<DateTimeOffset?>("UpdatedAt")
+                    b.Property<DateTimeOffset>("UpdatedAt")
                         .HasColumnType("datetimeoffset");
 
                     b.Property<string>("UpdatedBy")
@@ -269,8 +272,6 @@ namespace SM.WebApi.Migrations
 
                     b.HasIndex("Code")
                         .IsUnique();
-
-                    b.HasIndex("CustomerId");
 
                     b.ToTable("Substations");
                 });
@@ -470,12 +471,6 @@ namespace SM.WebApi.Migrations
 
             modelBuilder.Entity("SM.WebApi.Domain.Substation", b =>
                 {
-                    b.HasOne("SM.WebApi.Domain.Customer", "Customer")
-                        .WithMany()
-                        .HasForeignKey("CustomerId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.OwnsOne("SM.WebApi.Domain.GeoCoordinate", "Coordinates", b1 =>
                         {
                             b1.Property<Guid>("SubstationId")
@@ -535,8 +530,6 @@ namespace SM.WebApi.Migrations
                     b.Navigation("Address");
 
                     b.Navigation("Coordinates");
-
-                    b.Navigation("Customer");
                 });
 
             modelBuilder.Entity("SM.WebApi.Domain.Transformer", b =>

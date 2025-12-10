@@ -1,0 +1,54 @@
+﻿@page "/substations"
+@using SM.Shared
+@inject HttpClient Http
+@inject NavigationManager NavigationManager
+
+
+<PageTitle>Substations</PageTitle>
+
+<h1>Substations</h1>
+<!-- Form to add a new customer -->
+<div class="mb-3">
+    <button @onclick="GoToCreate">Add New Substations</button>
+</div>
+@if (substations == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Code</th>
+                <th>Customer</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var substation in substations)
+            {
+                <tr>
+                    <td>@substation.Name</td>
+                    <td>@substation.Code</td>
+                    <td>@substation.Customer?.Name</td>
+                    <td>
+                        <button @onclick="() => GoToEdit(substation.Id)">Edit</button>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@code {
+    private List<SubstationDto> substations = new();
+    protected override async Task OnInitializedAsync()
+    {
+        substations = await Http.GetFromJsonAsync<List<SubstationDto>>("http://localhost:5124/substations") ?? [];
+    }
+
+    void GoToCreate() => NavigationManager.NavigateTo("/substations/create");
+    void GoToEdit(Guid id) => NavigationManager.NavigateTo($"/substations/edit/{id}");
+}

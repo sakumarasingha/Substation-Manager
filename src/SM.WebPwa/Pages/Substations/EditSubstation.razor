@@ -1,0 +1,26 @@
+﻿@page "/substations/edit/{id:guid}"
+@using SM.Shared
+@using SM.WebPwa.Pages.Substations.Shared
+@inject HttpClient Http
+@inject NavigationManager NavigationManager
+
+<h3>Edit Customer</h3>
+
+<SubstationForm Substation="substation" OnValidSubmit="HandleValidSubmit" />
+
+@code {
+    [Parameter] public Guid id { get; set; }
+    private SubstationDto? substation = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        substation = await Http.GetFromJsonAsync<SubstationDto>($"http://localhost:5124/substations/{id}");
+    }
+
+    async Task HandleValidSubmit(SubstationDto updatedSubstation)
+    {
+        var response = await Http.PutAsJsonAsync($"http://localhost:5124/substations/{id}", updatedSubstation);
+        NavigationManager.NavigateTo("/substations");
+    }
+
+}

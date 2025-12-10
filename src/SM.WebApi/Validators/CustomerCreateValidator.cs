@@ -1,8 +1,8 @@
 using FluentValidation;
-using SM.WebApi.Contracts;
+using SM.Shared;
 
 namespace SM.WebApi.Validators;
-public class CustomerCreateValidator : AbstractValidator<CustomerCreateDto>
+public class CustomerCreateValidator : AbstractValidator<CustomerDto>
 {
     public CustomerCreateValidator()
     {
@@ -10,7 +10,7 @@ public class CustomerCreateValidator : AbstractValidator<CustomerCreateDto>
             .NotEmpty().WithMessage("Customer name is required")
             .MaximumLength(200);
 
-        RuleFor(x => x.Email)
+        RuleFor(x => x.PrimaryEmail)
             .NotEmpty().WithMessage("Email is required")
             .EmailAddress().WithMessage("Invalid email format");
     }

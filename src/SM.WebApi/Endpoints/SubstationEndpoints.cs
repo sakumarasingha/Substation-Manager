@@ -1,5 +1,5 @@
 using FluentValidation;
-using SM.WebApi.Contracts;
+using SM.Shared;
 using SM.WebApi.Domain;
 using SM.WebApi.Infrastructure;
 
@@ -15,19 +15,24 @@ public static class SubstationEndpoints
         // GET all
         group.MapGet("/", async (IRepository<Substation> repo) =>
         {
-            var list = await repo.GetAllAsync();
+            var list = await repo.GetAllAsync(t => t.Customer);
             var result = list.Select(s => new SubstationDto
             {
                 Id = s.Id,
                 Name = s.Name,
-                Description = s.Description,
-                CustomerId = s.CustomerId
+                Code = s.Code,
+                CustomerId = s.CustomerId,
+                Customer = new CustomerDto
+                {
+                    Name = s.Customer.Name,
+                    Code = s.Customer.Code                
+                }
             });
             return Results.Ok(result);
         });
 
         // GET by id
-        group.MapGet("/{id:int}", async (int id, IRepository<Substation> repo) =>
+        group.MapGet("/{id:guid}", async (Guid id, IRepository<Substation> repo) =>
         {
             var entity = await repo.GetByIdAsync(id);
             if (entity is null) return Results.NotFound();
@@ -36,7 +41,7 @@ public static class SubstationEndpoints
             {
                 Id = entity.Id,
                 Name = entity.Name,
-                Description = entity.Description,
+                Code = entity.Code,
                 CustomerId = entity.CustomerId
             };
             return Results.Ok(dto);
@@ -44,9 +49,9 @@ public static class SubstationEndpoints
 
         // POST (create)
         group.MapPost("/", async (
-            SubstationCreateDto dto,
+            SubstationDto dto,
             IRepository<Substation> repo,
-            IValidator<SubstationCreateDto> validator) =>
+            IValidator<SubstationDto> validator) =>
         {
             var validation = await validator.ValidateAsync(dto);
             if (!validation.IsValid)
@@ -55,8 +60,10 @@ public static class SubstationEndpoints
             var entity = new Substation
             {
                 Name = dto.Name,
-                Description =  dto.Description ?? string.Empty,
-                CustomerId = dto.CustomerId
+                Code = dto.Code ?? string.Empty,
+                CustomerId = dto.CustomerId,
+                CreatedAt = DateTimeOffset.UtcNow,
+                CreatedBy = "system"
             };
 
             await repo.AddAsync(entity);
@@ -66,7 +73,7 @@ public static class SubstationEndpoints
             {
                 Id = entity.Id,
                 Name = entity.Name,
-                Description = entity.Description,
+                Code = entity.Code,
                 CustomerId = entity.CustomerId
             };
 
@@ -74,11 +81,11 @@ public static class SubstationEndpoints
         });
 
         // PUT (update)
-        group.MapPut("/{id:int}", async (
-            int id,
-            SubstationCreateDto dto,
+        group.MapPut("/{id:guid}", async (
+            Guid id,
+            SubstationDto dto,
             IRepository<Substation> repo,
-            IValidator<SubstationCreateDto> validator) =>
+            IValidator<SubstationDto> validator) =>
         {
             var validation = await validator.ValidateAsync(dto);
             if (!validation.IsValid)
@@ -88,7 +95,7 @@ public static class SubstationEndpoints
             if (existing is null) return Results.NotFound();
 
             existing.Name = dto.Name;
-            existing.Description = dto.Description ?? string.Empty;
+            existing.Code = dto.Code ?? string.Empty;
             existing.CustomerId = dto.CustomerId;
 
             repo.Update(existing);
@@ -98,7 +105,7 @@ public static class SubstationEndpoints
             {
                 Id = existing.Id,
                 Name = existing.Name,
-                Description = existing.Description,
+                Code = existing.Code,
                 CustomerId = existing.CustomerId
             };
 
@@ -106,7 +113,7 @@ public static class SubstationEndpoints
         });
 
         // DELETE
-        group.MapDelete("/{id:int}", async (int id, IRepository<Substation> repo) =>
+        group.MapDelete("/{id:guid}", async (Guid id, IRepository<Substation> repo) =>
         {
             var existing = await repo.GetByIdAsync(id);
             if (existing is null) return Results.NotFound();

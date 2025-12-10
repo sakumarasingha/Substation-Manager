@@ -9,9 +9,9 @@
 <CustomerForm Customer="newCustomer" OnValidSubmit="AddCustomer" />
 
 @code {
-    private Customer newCustomer = new();
+    private CustomerDto newCustomer = new();
    
-    private async Task AddCustomer(Customer customer)
+    private async Task AddCustomer(CustomerDto customer)
     {
         // POST to your API
         var response = await Http.PostAsJsonAsync("http://localhost:5124/customers", newCustomer);
@@ -19,7 +19,7 @@
         if (response.IsSuccessStatusCode)
         {
             // Optionally read back the created customer
-            var created = await response.Content.ReadFromJsonAsync<Customer>();
+            var created = await response.Content.ReadFromJsonAsync<CustomerDto>();
             if (created is not null)
             {
                NavigationManager.NavigateTo("/customers");

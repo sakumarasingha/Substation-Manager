@@ -21,6 +21,7 @@ else
         <thead>
             <tr>
                 <th>Name</th>
+                <th>Code</th>
                 <th>Email</th>
                 <th>Phone</th>
                 <th>Actions</th>
@@ -31,8 +32,9 @@ else
             {
                 <tr>
                     <td>@customer.Name</td>
-                    <td>@customer.Email</td>
-                    <td>@customer.Phone</td>
+                    <td>@customer.Code</td>
+                    <td>@customer.PrimaryEmail</td>
+                    <td>@customer.PrimaryPhone</td>
                     <td>
                         <button @onclick="() => GoToEdit(customer.Id)">Edit</button>
                     </td>
@@ -43,12 +45,12 @@ else
 }
 
 @code {
-    private List<Customer> customers = new();
+    private List<CustomerDto> customers = new();
     protected override async Task OnInitializedAsync()
     {
-        customers = await Http.GetFromJsonAsync<List<Customer>>("http://localhost:5124/customers") ?? [];
+        customers = await Http.GetFromJsonAsync<List<CustomerDto>>("http://localhost:5124/customers") ?? [];
     }
 
     void GoToCreate() => NavigationManager.NavigateTo("/customers/create");
-    void GoToEdit(int id) => NavigationManager.NavigateTo($"/customers/edit/{id}");
+    void GoToEdit(Guid id) => NavigationManager.NavigateTo($"/customers/edit/{id}");
 }

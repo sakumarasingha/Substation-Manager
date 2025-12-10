@@ -1,7 +1,15 @@
-@using SM.Shared 
+@using SM.Shared
+@inject NavigationManager Nav
 @code {
-    [Parameter] public Customer Customer { get; set; } = new Customer();
-    [Parameter] public EventCallback<Customer> OnValidSubmit { get; set; }
+    [Parameter] public CustomerDto Customer { get; set; } = new CustomerDto();
+    [Parameter] public EventCallback<CustomerDto> OnValidSubmit { get; set; }
+
+    private void Cancel()
+    {
+        // Navigate to the customers list page
+        Nav.NavigateTo("/customers");
+    }
+
 }
 
 
@@ -17,21 +25,28 @@
         <ValidationMessage For="@(() => Customer.Name)" class="validation-message" />
     </div>
 
+
+    <div class="form-field">
+        <label class="form-label" for="name">Code</label>
+        <InputText id="name" @bind-Value="Customer.Code" class="form-control" placeholder="CUST001" />
+        <ValidationMessage For="@(() => Customer.Code)" class="validation-message" />
+    </div>
+
     <div class="form-field">
         <label class="form-label" for="email">Email</label>
-        <InputText id="email" @bind-Value="Customer.Email" class="form-control" placeholder="jane.doe@example.com" />
-        <ValidationMessage For="@(() => Customer.Email)" class="validation-message" />
+        <InputText id="email" @bind-Value="Customer.PrimaryEmail" class="form-control"
+            placeholder="jane.doe@example.com" />
+        <ValidationMessage For="@(() => Customer.PrimaryEmail)" class="validation-message" />
     </div>
 
     <div class="form-field">
         <label class="form-label" for="phone">Phone</label>
-        <InputText id="phone" @bind-Value="Customer.Phone" class="form-control" placeholder="+61 4xx xxx xxx" />
-        <ValidationMessage For="@(() => Customer.Phone)" class="validation-message" />
+        <InputText id="phone" @bind-Value="Customer.PrimaryPhone" class="form-control" placeholder="+61 4xx xxx xxx" />
+        <ValidationMessage For="@(() => Customer.PrimaryPhone)" class="validation-message" />
     </div>
 
     <div class="flex-row mt-2">
         <button type="submit" class="btn">Save</button>
-        <button type="button" class="btn btn-outline">Cancel</button>
+        <button type="button" class="btn btn-outline" @onclick="Cancel">Cancel</button>
     </div>
 </EditForm>
-
