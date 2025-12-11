@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using SM.WebApi.Infrastructure;
 
@@ -11,9 +12,11 @@ using SM.WebApi.Infrastructure;
 namespace SM.WebApi.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20251211055846_transformer")]
+    partial class transformer
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -68,10 +71,6 @@ namespace SM.WebApi.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("AssetTypeId");
-
-                    b.HasIndex("SubstationId");
-
                     b.ToTable("Assets");
                 });
 
@@ -80,11 +79,6 @@ namespace SM.WebApi.Migrations
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("Code")
-                        .IsRequired()
-                        .HasMaxLength(32)
-                        .HasColumnType("nvarchar(32)");
 
                     b.Property<DateTimeOffset>("CreatedAt")
                         .HasColumnType("datetimeoffset");
@@ -98,6 +92,10 @@ namespace SM.WebApi.Migrations
 
                     b.Property<string>("DeletedBy")
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Description")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
 
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("bit");
@@ -117,7 +115,7 @@ namespace SM.WebApi.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("AssetTypes", (string)null);
+                    b.ToTable("AssetTypes");
                 });
 
             modelBuilder.Entity("SM.WebApi.Domain.Customer", b =>
@@ -318,8 +316,10 @@ namespace SM.WebApi.Migrations
 
                     b.Property<string>("SerialNumber")
                         .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<Guid?>("SubstationId")
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("TransformerType")
                         .IsRequired()
@@ -339,6 +339,8 @@ namespace SM.WebApi.Migrations
                         .HasColumnType("int");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("SubstationId");
 
                     b.ToTable("Transformers");
                 });
@@ -413,25 +415,6 @@ namespace SM.WebApi.Migrations
                     b.HasIndex("TransformerId");
 
                     b.ToTable("AuditReports");
-                });
-
-            modelBuilder.Entity("SM.WebApi.Domain.Asset", b =>
-                {
-                    b.HasOne("SM.WebApi.Domain.AssetType", "AssetType")
-                        .WithMany("Assets")
-                        .HasForeignKey("AssetTypeId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("SM.WebApi.Domain.Substation", "Substation")
-                        .WithMany("Assets")
-                        .HasForeignKey("SubstationId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("AssetType");
-
-                    b.Navigation("Substation");
                 });
 
             modelBuilder.Entity("SM.WebApi.Domain.Customer", b =>
@@ -550,10 +533,14 @@ namespace SM.WebApi.Migrations
             modelBuilder.Entity("SM.WebApi.Domain.Transformer", b =>
                 {
                     b.HasOne("SM.WebApi.Domain.Asset", "Asset")
-                        .WithOne()
+                        .WithOne("Transformer")
                         .HasForeignKey("SM.WebApi.Domain.Transformer", "Id")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.HasOne("SM.WebApi.Domain.Substation", null)
+                        .WithMany("Transformers")
+                        .HasForeignKey("SubstationId");
 
                     b.Navigation("Asset");
                 });
@@ -569,14 +556,14 @@ namespace SM.WebApi.Migrations
                     b.Navigation("Transformer");
                 });
 
-            modelBuilder.Entity("SM.WebApi.Domain.AssetType", b =>
+            modelBuilder.Entity("SM.WebApi.Domain.Asset", b =>
                 {
-                    b.Navigation("Assets");
+                    b.Navigation("Transformer");
                 });
 
             modelBuilder.Entity("SM.WebApi.Domain.Substation", b =>
                 {
-                    b.Navigation("Assets");
+                    b.Navigation("Transformers");
                 });
 
             modelBuilder.Entity("SM.WebApi.Domain.Transformer", b =>

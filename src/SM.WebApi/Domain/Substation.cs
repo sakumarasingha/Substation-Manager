@@ -36,7 +36,10 @@ public sealed class Substation
     public byte[]? RowVersion { get; set; }
 
     public Customer? Customer { get; set; }
-    public List<Transformer> Transformers { get; set; } = new();
+
+    // Optional inverse navigation
+    public ICollection<Asset> Assets { get; set; } = new List<Asset>();
+
 
 
 

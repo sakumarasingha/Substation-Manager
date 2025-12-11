@@ -20,12 +20,6 @@ public class AppDbContext : DbContext
 
         modelBuilder.ApplyConfigurationsFromAssembly(typeof(AppDbContext).Assembly);
 
-        // Asset ↔ Transformer (1-to-1, shared PK)
-        modelBuilder.Entity<Asset>()
-            .HasOne(a => a.Transformer)
-            .WithOne(t => t.Asset)
-            .HasForeignKey<Transformer>(t => t.Id); // shared PK
-
     }
 
 

@@ -4,17 +4,16 @@
 @inject HttpClient Http
 @inject NavigationManager NavigationManager
 
-<h3>Create Substation</h3>
+<h3>Create Equipment</h3>
 
-<EquipmentForm Substation="newSubstation" OnValidSubmit="AddEquipments" />
+<EquipmentForm Equipment="newEquipments" OnValidSubmit="AddEquipments" />
 
 @code {
     private TransformerDto newEquipments = new TransformerDto();
-   
     private async Task AddEquipments(TransformerDto equipment)
     {
         // POST to your API
-        var response = await Http.PostAsJsonAsync("http://localhost:5124/equipments", newEquipments);
+        var response = await Http.PostAsJsonAsync("http://localhost:5124/transformers", newEquipments);
 
         if (response.IsSuccessStatusCode)
         {
@@ -22,7 +21,7 @@
             var created = await response.Content.ReadFromJsonAsync<TransformerDto>();
             if (created is not null)
             {
-               NavigationManager.NavigateTo("/equipments");
+                NavigationManager.NavigateTo("/equipments");
             }
         }
         else
@@ -30,4 +29,5 @@
             // Handle error (log, show message, etc.)
         }
     }
+
 }

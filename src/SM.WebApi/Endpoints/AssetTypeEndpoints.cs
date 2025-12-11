@@ -9,7 +9,7 @@ public static class AssetTypeEndpoints
 {
     public static void MapAssetTypeEndpoints(this IEndpointRouteBuilder routes)
     {
-        var group = routes.MapGroup("/AssetTypes")
+        var group = routes.MapGroup("/assettypes")
                           .WithTags("AssetTypes");
 
         // GET all
@@ -19,7 +19,8 @@ public static class AssetTypeEndpoints
             var result = list.Select(ec => new AssetTypeDto
             {
                 Id = ec.Id,
-                Name = ec.Name
+                Name = ec.Name,
+                Code = ec.Code
             });
             return Results.Ok(result);
         });
@@ -33,7 +34,8 @@ public static class AssetTypeEndpoints
             var dto = new AssetTypeDto
             {
                 Id = entity.Id,
-                Name = entity.Name
+                Name = entity.Name,
+                Code = entity.Code
             };
             return Results.Ok(dto);
         });
@@ -50,7 +52,8 @@ public static class AssetTypeEndpoints
 
             var entity = new AssetType
             {
-                Name = dto.Name
+                Name = dto.Name,
+                Code = dto.Code
             };
 
             await repo.AddAsync(entity);
@@ -59,10 +62,11 @@ public static class AssetTypeEndpoints
             var result = new AssetTypeDto
             {
                 Id = entity.Id,
-                Name = entity.Name
+                Name = entity.Name,
+                Code = entity.Code
             };
 
-            return Results.Created($"/equipmentcategories/{entity.Id}", result);
+            return Results.Created($"/assettypes/{entity.Id}", result);
         });
     }
 }

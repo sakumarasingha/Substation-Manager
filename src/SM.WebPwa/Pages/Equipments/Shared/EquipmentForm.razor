@@ -1,6 +1,12 @@
 @using SM.Shared
+@using System.Globalization
+@inject HttpClient Http
 @inject NavigationManager Nav
 @code {
+    [Parameter] public SubstationDto Substation { get; set; } = new SubstationDto();
+
+    public Guid? CustomerId { get; set; }
+    [Parameter] public AssetDto Asset { get; set; } = new AssetDto();
     [Parameter] public TransformerDto Equipment { get; set; } = new TransformerDto();
     [Parameter] public EventCallback<TransformerDto> OnValidSubmit { get; set; }
 
@@ -10,6 +16,31 @@
         Nav.NavigateTo("/equipments");
     }
 
+
+    private List<CustomerDto> customers = new();
+    private List<SubstationDto> substations = new List<SubstationDto>();
+    private List<AssetTypeDto> types = new List<AssetTypeDto>();
+    protected override async Task OnInitializedAsync()
+    {
+        customers = await Http.GetFromJsonAsync<List<CustomerDto>>("http://localhost:5124/customers") ?? [];
+        substations = await Http.GetFromJsonAsync<List<SubstationDto>>($"http://localhost:5124/substations") ?? new
+        List<SubstationDto>();
+        types = await Http.GetFromJsonAsync<List<AssetTypeDto>>("http://localhost:5124/assettypes") ?? [];
+    }
+
+    [Inject] IJSRuntime JS { get; set; } = default!;
+    private async Task ShowAlert()
+    {
+        await JS.InvokeVoidAsync("alert", "Hi");
+    }
+
+    private void OnCustomerChanged(ChangeEventArgs e)
+    {
+        JS.InvokeVoidAsync("alert", "Hi");
+    }
+
+
+
 }
 
 
@@ -18,12 +49,56 @@
 
     <DataAnnotationsValidator />
     <ValidationSummary class="validation-summary" />
+    <!-- Customer dropdown -->
+    <div class="form-field">
+        <label class="form-label" for="customer">Customer</label>
 
+
+        <InputSelect id="customer" TValue="Guid ?" @bind-Value="CustomerId" class="form-control"
+            @onchange="OnCustomerChanged">
+
+            <option value="">-- Select Customer --</option>
+            @if (customers is not null)
+            {
+                @foreach (var c in customers)
+                {
+                    <option value="@c.Id">@c.Code - @c.Name</option>
+                }
+            }
+        </InputSelect>
+    </div>
+    <div class="form-field">
+        <label class="form-label" for="substation">Substation</label>
+        <InputSelect id="substation" @bind-Value="Asset.SubstationId" class="form-control"
+            disabled="@(CustomerId is null)">
+            <option value="">-- Select Substation --</option>
+            @if (substations is not null)
+            {
+                @foreach (SubstationDto c in substations)
+                {
+                    <option value="@c.Id">@c.Code - @c.Name</option>
+                }
+            }
+        </InputSelect>
+    </div>
+    <div class="form-field">
+        <label class="form-label" for="substation">Equipment Type</label>
+        <InputSelect id="substation" @bind-Value="Asset.AssetTypeId" class="form-control">
+            <option value="">-- Select Equipment Type --</option>
+            @if (substations is not null)
+            {
+                @foreach (AssetTypeDto type in types)
+                {
+                    <option value="@type.Id">@type.Name</option>
+                }
+            }
+        </InputSelect>
+    </div>
     <div class="form-field">
         <label class="form-label" for="name">Name</label>
         <InputText id="name" @bind-Value="Equipment.SerialNumber" class="form-control" placeholder="Jane Doe" />
         <ValidationMessage For="@(() => Equipment.SerialNumber)" class="validation-message" />
-    </div> 
+    </div>
 
     <div class="flex-row mt-2">
         <button type="submit" class="btn">Save</button>

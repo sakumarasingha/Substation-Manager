@@ -9,7 +9,7 @@ public class Transformer
     public Guid Id { get; set; }   // same as Asset.Id
 
     // Navigation
-    public Asset Asset { get; set; } = null!;
+    public Asset? Asset { get; set; }
 
     public required string SerialNumber { get; set; }
     public required string ManufacturerName { get; set; }

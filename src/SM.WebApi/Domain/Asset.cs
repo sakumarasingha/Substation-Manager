@@ -9,7 +9,6 @@ public class Asset
     public Guid AssetTypeId { get; set; }
     public required DateTime InstallationDate { get; set; } = DateTime.UtcNow;
     public Guid SubstationId { get; set; }
-    public Substation? Substation { get; set; }
     public required string Status { get; set; } = "Active";
 
     // Audit
@@ -27,5 +26,8 @@ public class Asset
     public byte[]? RowVersion { get; set; }
 
     // Navigation
-    public Transformer? Transformer { get; set; }
+    
+    public AssetType AssetType { get; set; } = null!;
+    public Substation Substation { get; set; } = null!;
+
 }

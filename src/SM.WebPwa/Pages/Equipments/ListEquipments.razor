@@ -45,6 +45,6 @@ else
         equipments = await Http.GetFromJsonAsync<List<TransformerDto>>("http://localhost:5124/transformers") ?? [];
     }
 
-    void GoToCreate() => NavigationManager.NavigateTo("/transformers/create");
-    void GoToEdit(Guid id) => NavigationManager.NavigateTo($"/transformers/edit/{id}");
+    void GoToCreate() => NavigationManager.NavigateTo("/equipments/create");
+    void GoToEdit(Guid id) => NavigationManager.NavigateTo($"/equipments/edit/{id}");
 }

@@ -6,15 +6,15 @@
 
 <h3>Edit Equipments</h3>
 
-<EquipmentForm Equipments="equipments" OnValidSubmit="HandleValidSubmit" />
+<EquipmentForm Equipments="equipment" OnValidSubmit="HandleValidSubmit" />
 
 @code {
     [Parameter] public Guid id { get; set; }
-    private TransformerDto equipments = new();  
+    private TransformerDto? equipment = new();  
 
     protected override async Task OnInitializedAsync()
     {
-        equipments = await Http.GetFromJsonAsync<TransformerDto>($"http://localhost:5124/transformers/{id}");
+        equipment = await Http.GetFromJsonAsync<TransformerDto>($"http://localhost:5124/transformers/{id}");
     }
 
     async Task HandleValidSubmit(TransformerDto updatedSubstation)

@@ -8,8 +8,7 @@ public class AssetType
     public Guid Id { get; set; } = Guid.NewGuid();
     public required string Name { get; set; }
 
-    [MaxLength(500)]
-    public string? Description { get; set; }
+    public required string Code { get; set; }
 
     // Audit
     public DateTimeOffset CreatedAt { get; set; } = DateTimeOffset.UtcNow;
@@ -24,5 +23,10 @@ public class AssetType
 
     // Concurrency
     public byte[]? RowVersion { get; set; }
+
+
+    // Optional inverse navigation
+    public ICollection<Asset> Assets { get; set; } = new List<Asset>();
+
 
 }
