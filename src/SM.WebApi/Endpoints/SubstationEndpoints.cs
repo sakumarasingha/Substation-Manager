@@ -24,8 +24,8 @@ public static class SubstationEndpoints
                 CustomerId = s.CustomerId,
                 Customer = new CustomerDto
                 {
-                    Name = s.Customer.Name,
-                    Code = s.Customer.Code                
+                    Name = s.Customer?.Name?? string.Empty,
+                    Code = s.Customer?.Code?? string.Empty
                 }
             });
             return Results.Ok(result);
@@ -45,6 +45,25 @@ public static class SubstationEndpoints
                 CustomerId = entity.CustomerId
             };
             return Results.Ok(dto);
+        });
+
+        // GET by id
+        group.MapGet("/bycustid/{id:guid}", async (Guid id, IRepository<Substation> repo) =>
+        {
+            var list = await repo.GetManyAsync(s => s.CustomerId == id, t => t.Customer);
+            var result = list.Select(s => new SubstationDto
+            {
+                Id = s.Id,
+                Name = s.Name,
+                Code = s.Code,
+                CustomerId = s.CustomerId,
+                Customer = new CustomerDto
+                {
+                    Name = s.Customer?.Name ?? string.Empty,
+                    Code = s.Customer?.Code ?? string.Empty
+                }
+            });
+            return Results.Ok(result);
         });
 
         // POST (create)

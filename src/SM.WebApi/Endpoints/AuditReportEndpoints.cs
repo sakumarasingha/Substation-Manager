@@ -1,5 +1,5 @@
 using FluentValidation;
-using SM.WebApi.Contracts;
+using SM.Shared;
 using SM.WebApi.Domain;
 using SM.WebApi.Infrastructure;
 
@@ -58,9 +58,9 @@ public static class AuditReportEndpoints
 
         // POST (create)
         group.MapPost("/", async (
-            AuditReportCreateDto dto,
+            AuditReportDto dto,
             IRepository<TransformerAuditReport> repo,
-            IValidator<AuditReportCreateDto> validator) =>
+            IValidator<AuditReportDto> validator) =>
         {
             var validation = await validator.ValidateAsync(dto);
             if (!validation.IsValid)
@@ -104,9 +104,9 @@ public static class AuditReportEndpoints
         // PUT (update)
         group.MapPut("/{id:guid}", async (
             Guid id,
-            AuditReportCreateDto dto,
+            AuditReportDto dto,
             IRepository<TransformerAuditReport> repo,
-            IValidator<AuditReportCreateDto> validator) =>
+            IValidator<AuditReportDto> validator) =>
         {
             var validation = await validator.ValidateAsync(dto);
             if (!validation.IsValid)

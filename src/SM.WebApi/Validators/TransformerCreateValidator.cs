@@ -1,9 +1,9 @@
 using FluentValidation;
-using SM.WebApi.Contracts;
+using SM.Shared;
 
 namespace SM.WebApi.Validators;
 
-public class TransformerCreateValidator : AbstractValidator<TransformerCreateDto>
+public class TransformerCreateValidator : AbstractValidator<TransformerDto>
 {
     public TransformerCreateValidator()
     {

@@ -1,0 +1,32 @@
+@using SM.Shared
+@inject NavigationManager Nav
+@code {
+    [Parameter] public TransformerDto Equipment { get; set; } = new TransformerDto();
+    [Parameter] public EventCallback<TransformerDto> OnValidSubmit { get; set; }
+
+    private void Cancel()
+    {
+        // Navigate to the equipments list page
+        Nav.NavigateTo("/equipments");
+    }
+
+}
+
+
+<EditForm Model="Equipment" OnValidSubmit="() => OnValidSubmit.InvokeAsync(Equipment)" class="edit-form">
+    <h2 class="form-title">Equipments</h2>
+
+    <DataAnnotationsValidator />
+    <ValidationSummary class="validation-summary" />
+
+    <div class="form-field">
+        <label class="form-label" for="name">Name</label>
+        <InputText id="name" @bind-Value="Equipment.SerialNumber" class="form-control" placeholder="Jane Doe" />
+        <ValidationMessage For="@(() => Equipment.SerialNumber)" class="validation-message" />
+    </div> 
+
+    <div class="flex-row mt-2">
+        <button type="submit" class="btn">Save</button>
+        <button type="button" class="btn btn-outline" @onclick="Cancel">Cancel</button>
+    </div>
+</EditForm>

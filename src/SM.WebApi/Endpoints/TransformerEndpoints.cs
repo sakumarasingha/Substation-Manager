@@ -1,5 +1,5 @@
 using FluentValidation;
-using SM.WebApi.Contracts;
+using SM.Shared;
 using SM.WebApi.Domain;
 using SM.WebApi.Infrastructure;
 
@@ -15,14 +15,11 @@ public static class TransformerEndpoints
         // GET all
         group.MapGet("/", async (IRepository<Transformer> repo) =>
         {
-            var list = await repo.GetAllTransformersAsync();
-            
+            var list = await repo.GetAllAsync();
+
             var result = list.Select(t => new TransformerDto
             {
                 Id = t.Id,
-                SubstationId = t.Asset.SubstationId,
-                InstallationDate = t.Asset.InstallationDate,
-                Status = t.Asset.Status,
                 SerialNumber = t.SerialNumber,
                 ManufacturerName = t.ManufacturerName,
                 YearOfManufacture = t.YearOfManufacture,
@@ -44,9 +41,6 @@ public static class TransformerEndpoints
             var dto = new TransformerDto
             {
                 Id = entity.Id,
-                SubstationId = entity.Asset.SubstationId,
-                InstallationDate = entity.Asset.InstallationDate,
-                Status = entity.Asset.Status,
                 SerialNumber = entity.SerialNumber,
                 ManufacturerName = entity.ManufacturerName,
                 YearOfManufacture = entity.YearOfManufacture,
@@ -61,9 +55,9 @@ public static class TransformerEndpoints
 
         // POST (create)
         group.MapPost("/", async (
-            TransformerCreateDto dto,
+            TransformerDto dto,
             IRepository<Transformer> repo,
-            IValidator<TransformerCreateDto> validator) =>
+            IValidator<TransformerDto> validator) =>
         {
             var validation = await validator.ValidateAsync(dto);
             if (!validation.IsValid)
@@ -71,10 +65,10 @@ public static class TransformerEndpoints
 
             var asset = new Asset
             {
-                AssetTypeId = dto.AssetTypeId,
-                InstallationDate = dto.InstallationDate,
-                SubstationId = dto.SubstationId,
-                Status = dto.Status
+                AssetTypeId = dto.Asset.AssetTypeId,
+                InstallationDate = dto.Asset.InstallationDate,
+                SubstationId = dto.Asset.SubstationId,
+                Status = dto.Asset.Status
             };
 
             var entity = new Transformer
@@ -97,9 +91,7 @@ public static class TransformerEndpoints
             var result = new TransformerDto
             {
                 Id = entity.Id,
-                SubstationId = entity.Asset.SubstationId,
-                InstallationDate = entity.Asset.InstallationDate,
-                Status = entity.Asset.Status,
+               
                 SerialNumber = entity.SerialNumber,
                 ManufacturerName = entity.ManufacturerName,
                 YearOfManufacture = entity.YearOfManufacture,
@@ -116,9 +108,9 @@ public static class TransformerEndpoints
         // PUT (update)
         group.MapPut("/{id:guid}", async (
             Guid id,
-            TransformerCreateDto dto,
+            TransformerDto dto,
             IRepository<Transformer> repo,
-            IValidator<TransformerCreateDto> validator) =>
+            IValidator<TransformerDto> validator) =>
         {
             var validation = await validator.ValidateAsync(dto);
             if (!validation.IsValid)
@@ -142,9 +134,6 @@ public static class TransformerEndpoints
             var result = new TransformerDto
             {
                 Id = existing.Id,
-                SubstationId = existing.Asset.SubstationId,
-                InstallationDate = existing.Asset.InstallationDate,
-                Status = existing.Asset.Status,
                 SerialNumber = existing.SerialNumber,
                 ManufacturerName = existing.ManufacturerName,
                 YearOfManufacture = existing.YearOfManufacture,

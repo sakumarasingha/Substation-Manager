@@ -8,5 +8,5 @@ public sealed class SubstationDto
     public Guid CustomerId { get; set; }
     public CustomerDto? Customer { get; set; }
 
-    public List<Transformer> Transformers { get; set; } = new();
+    public List<TransformerDto> Transformers { get; set; } = new();
 }

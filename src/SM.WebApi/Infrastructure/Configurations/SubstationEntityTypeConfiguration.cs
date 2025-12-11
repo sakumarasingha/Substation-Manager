@@ -15,7 +15,15 @@ public class SubstationEntityTypeConfiguration : IEntityTypeConfiguration<Substa
 
               builder.OwnsOne(s => s.Address);
               builder.OwnsOne(s => s.Coordinates);
-              builder.HasOne(s => s.Customer);
+
+              builder.Property(s => s.CustomerId)
+                             .IsRequired();
+
+              builder.HasOne(s => s.Customer)
+                     .WithMany()
+                     .HasForeignKey(s => s.CustomerId)
+                     .OnDelete(DeleteBehavior.Restrict);
+
 
               // ---------- Scalar properties ----------
               // Id

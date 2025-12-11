@@ -1,8 +1,8 @@
 using FluentValidation;
-using SM.WebApi.Contracts;
+using SM.Shared;
 namespace SM.WebApi.Validators;
 
-public class AuditReportCreateValidator : AbstractValidator<AuditReportCreateDto>
+public class AuditReportCreateValidator : AbstractValidator<AuditReportDto>
 {
     public AuditReportCreateValidator()
     {

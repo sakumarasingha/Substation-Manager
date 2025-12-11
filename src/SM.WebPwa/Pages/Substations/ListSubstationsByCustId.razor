@@ -1,0 +1,46 @@
+﻿@page "/substations/bycustid/{id:guid}"
+@using SM.Shared
+@inject HttpClient Http
+@inject NavigationManager NavigationManager
+
+
+<PageTitle>Substations</PageTitle>
+
+<h1>Substations</h1>
+
+@if (substations == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Code</th>
+                <th>Customer</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var substation in substations)
+            {
+                <tr>
+                    <td>@substation.Name</td>
+                    <td>@substation.Code</td>
+                    <td>@substation.Customer?.Name</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@code {
+    [Parameter] public Guid id { get; set; }
+    private List<SubstationDto> substations = new();
+    protected override async Task OnInitializedAsync()
+    {
+        substations = await Http.GetFromJsonAsync<List<SubstationDto>>($"http://localhost:5124/substations/bycustid/{id}") ??
+        [];
+    }
+}

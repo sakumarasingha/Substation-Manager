@@ -1,6 +1,5 @@
 using FluentValidation;
 using SM.Shared;
-using SM.WebApi.Contracts;
 
 namespace SM.WebApi.Validators;
 

@@ -1,5 +1,5 @@
 using FluentValidation;
-using SM.WebApi.Contracts;
+using SM.Shared;
 using SM.WebApi.Domain;
 using SM.WebApi.Infrastructure;
 
@@ -40,9 +40,9 @@ public static class AssetTypeEndpoints
 
         // POST (create)
         group.MapPost("/", async (
-            AssetTypeCreateDto dto,
+            AssetTypeDto dto,
             IRepository<AssetType> repo,
-            IValidator<AssetTypeCreateDto> validator) =>
+            IValidator<AssetTypeDto> validator) =>
         {
             var validation = await validator.ValidateAsync(dto);
             if (!validation.IsValid)

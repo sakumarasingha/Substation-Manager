@@ -30,7 +30,9 @@ else
         <tbody>
             @foreach (var customer in customers)
             {
-                <tr>
+                var isSelected = selectedCustomerId == customer.Id;
+                <tr class="@GetRowClass(isSelected)" @onclick="@(() => OnRowClick(customer))"
+                    @onkeydown="@(e => OnRowKeyDown(e, customer))" tabindex="0" aria-selected="@isSelected">
                     <td>@customer.Name</td>
                     <td>@customer.Code</td>
                     <td>@customer.PrimaryEmail</td>
@@ -46,6 +48,7 @@ else
 
 @code {
     private List<CustomerDto> customers = new();
+    private Guid? selectedCustomerId;
     protected override async Task OnInitializedAsync()
     {
         customers = await Http.GetFromJsonAsync<List<CustomerDto>>("http://localhost:5124/customers") ?? [];
@@ -53,4 +56,25 @@ else
 
     void GoToCreate() => NavigationManager.NavigateTo("/customers/create");
     void GoToEdit(Guid id) => NavigationManager.NavigateTo($"/customers/edit/{id}");
+
+    void GoToListSubstations(Guid id) => NavigationManager.NavigateTo($"/substations/bycustid/{id}");
+
+
+    private void OnRowClick(CustomerDto customer)
+    {
+        selectedCustomerId = customer.Id;
+        GoToListSubstations(customer.Id);
+    }
+
+    private void OnRowKeyDown(KeyboardEventArgs e, CustomerDto customer)
+    {
+        // Support keyboard accessibility (Enter/Space to “click” the row)
+        if (e.Key is "Enter" or " ")
+        {
+            OnRowClick(customer);
+        }
+    }
+
+    private string GetRowClass(bool isSelected) => isSelected ? "table-active" : "";
+
 }

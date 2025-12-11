@@ -1,9 +1,9 @@
 using FluentValidation;
-using SM.WebApi.Contracts;
+using SM.Shared;
 
 namespace SM.WebApi.Validators;
 
-public class AssetTypeCreateValidator : AbstractValidator<AssetTypeCreateDto>
+public class AssetTypeCreateValidator : AbstractValidator<AssetTypeDto>
 {
     public AssetTypeCreateValidator()
     {

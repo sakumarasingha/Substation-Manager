@@ -35,7 +35,7 @@ public sealed class Substation
     // Concurrency
     public byte[]? RowVersion { get; set; }
 
-    public Customer Customer { get; set; } = new();
+    public Customer? Customer { get; set; }
     public List<Transformer> Transformers { get; set; } = new();
 
 

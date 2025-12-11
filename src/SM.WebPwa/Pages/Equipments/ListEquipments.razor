@@ -1,0 +1,50 @@
+﻿@page "/equipments"
+@using SM.Shared
+@inject HttpClient Http
+@inject NavigationManager NavigationManager
+
+
+<PageTitle>Equipments</PageTitle>
+
+<h1>Equipments</h1>
+<!-- Form to add a new customer -->
+<div class="mb-3">
+    <button @onclick="GoToCreate">Add New Equipments</button>
+</div>
+@if (equipments == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Code</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var equipment in equipments)
+            {
+                <tr>
+                    <td>@equipment.SerialNumber</td>
+                    <td>
+                        <button @onclick="() => GoToEdit(equipment.Id)">Edit</button>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@code {
+    private List<TransformerDto> equipments = new List<TransformerDto>();
+    protected override async Task OnInitializedAsync()
+    {
+        equipments = await Http.GetFromJsonAsync<List<TransformerDto>>("http://localhost:5124/transformers") ?? [];
+    }
+
+    void GoToCreate() => NavigationManager.NavigateTo("/transformers/create");
+    void GoToEdit(Guid id) => NavigationManager.NavigateTo($"/transformers/edit/{id}");
+}

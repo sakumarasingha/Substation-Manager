@@ -8,31 +8,45 @@ public class EfRepository<T> : IRepository<T> where T : class
     private readonly AppDbContext _db;
     public EfRepository(AppDbContext db) => _db = db;
 
-    
-public Task<List<T>> GetAllAsync(params Expression<Func<T, object>>[] includes)
-{
-    IQueryable<T> query = _db.Set<T>();
 
-    if (includes != null)
+    public Task<List<T>> GetAllAsync(params Expression<Func<T, object>>[] includes)
     {
-        foreach (var include in includes)
+        IQueryable<T> query = _db.Set<T>();
+
+        if (includes != null)
         {
-            query = query.Include(include);
+            foreach (var include in includes)
+            {
+                query = query.Include(include);
+            }
         }
+
+        return query.ToListAsync();
     }
 
-    return query.ToListAsync();
-}
+
+
+    public Task<List<T>> GetManyAsync(Expression<Func<T, bool>> predicate, params Expression<Func<T, object>>[] includes)
+    {
+          IQueryable<T> query = _db.Set<T>().Where(predicate);
+
+        if (includes != null)
+        {
+            foreach (var include in includes)
+            {
+                query = query.Include(include);
+            }
+        }
+
+        return query.ToListAsync();
+    }
 
     public Task<T?> GetByIdAsync(Guid id) => _db.Set<T>().FindAsync(id).AsTask();
+
+
     public Task AddAsync(T entity) { _db.Set<T>().Add(entity); return Task.CompletedTask; }
     public void Update(T entity) => _db.Set<T>().Update(entity);
     public void Remove(T entity) => _db.Set<T>().Remove(entity);
     public Task SaveChangesAsync() => _db.SaveChangesAsync();
-
-    public Task<List<Transformer>> GetAllTransformersAsync()
-    => _db.Transformers
-          .Include(t => t.Asset)
-          .ToListAsync();
 
 }

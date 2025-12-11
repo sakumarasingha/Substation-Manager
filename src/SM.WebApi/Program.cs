@@ -1,6 +1,6 @@
 using FluentValidation;
 using FluentValidation.AspNetCore;
-using SM.WebApi.Contracts;
+using SM.Shared;
 using SM.WebApi.Infrastructure;
 using SM.WebApi.Domain;
 using Microsoft.EntityFrameworkCore;
