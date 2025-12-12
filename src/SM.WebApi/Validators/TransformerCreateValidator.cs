@@ -16,12 +16,12 @@ public class TransformerCreateValidator : AbstractValidator<TransformerDto>
 
         RuleFor(x => x.YearOfManufacture)
             .InclusiveBetween(1900, DateTime.UtcNow.Year);
-
+/*
         RuleFor(x => x.RatedCapacity).GreaterThan(0);
         RuleFor(x => x.PrimaryVoltage).GreaterThan(0);
         RuleFor(x => x.SecondaryVoltage).GreaterThan(0);
 
         RuleFor(x => x.TransformerType).NotEmpty();
-        RuleFor(x => x.VectorGroup).NotEmpty();
+        RuleFor(x => x.VectorGroup).NotEmpty();*/
     }
 }

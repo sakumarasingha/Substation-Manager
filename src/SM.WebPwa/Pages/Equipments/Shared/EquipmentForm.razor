@@ -8,7 +8,7 @@
     public Guid? CustomerId { get; set; }
     [Parameter] public AssetDto Asset { get; set; } = new AssetDto();
     [Parameter] public TransformerDto Equipment { get; set; } = new TransformerDto();
-    [Parameter] public EventCallback<TransformerDto> OnValidSubmit { get; set; }
+    [Parameter] public EventCallback<(TransformerDto Equipment, AssetDto Asset)> OnValidSubmit { get; set; }
 
     private void Cancel()
     {
@@ -44,7 +44,7 @@
 }
 
 
-<EditForm Model="Equipment" OnValidSubmit="() => OnValidSubmit.InvokeAsync(Equipment)" class="edit-form">
+<EditForm Model="Equipment" OnValidSubmit="() => OnValidSubmit.InvokeAsync((Equipment, Asset))" class="edit-form">
     <h2 class="form-title">Equipments</h2>
 
     <DataAnnotationsValidator />
@@ -69,7 +69,7 @@
     </div>
     <div class="form-field">
         <label class="form-label" for="substation">Substation</label>
-        <InputSelect id="substation" @bind-Value="Asset.SubstationId" class="form-control"
+        <InputSelect id="substation" @bind-Value="Equipment.Asset.SubstationId" class="form-control"
             disabled="@(CustomerId is null)">
             <option value="">-- Select Substation --</option>
             @if (substations is not null)
@@ -82,8 +82,8 @@
         </InputSelect>
     </div>
     <div class="form-field">
-        <label class="form-label" for="substation">Equipment Type</label>
-        <InputSelect id="substation" @bind-Value="Asset.AssetTypeId" class="form-control">
+        <label class="form-label" for="assettype">Equipment Type</label>
+        <InputSelect id="assettype" @bind-Value="Equipment.Asset.AssetTypeId" class="form-control">
             <option value="">-- Select Equipment Type --</option>
             @if (substations is not null)
             {
@@ -94,11 +94,33 @@
             }
         </InputSelect>
     </div>
-    <div class="form-field">
-        <label class="form-label" for="name">Name</label>
-        <InputText id="name" @bind-Value="Equipment.SerialNumber" class="form-control" placeholder="Jane Doe" />
-        <ValidationMessage For="@(() => Equipment.SerialNumber)" class="validation-message" />
-    </div>
+
+    @* Conditionally show transformer-specific fields *@
+    @if (true)
+    {
+        <div class="form-field">
+            <label class="form-label" for="name">Name</label>
+            <InputText id="name" @bind-Value="Equipment.Name" class="form-control" placeholder="Transformer 1" />
+            <ValidationMessage For="@(() => Equipment.Name)" class="validation-message" />
+        </div>
+        <div class="form-field">
+            <label class="form-label" for="serial">Serial Number</label>
+            <InputText id="serial" class="form-control" @bind-Value="Equipment.SerialNumber" />
+            <ValidationMessage For="@(() => Equipment.SerialNumber)" />
+        </div>
+
+        <div class="form-field">
+            <label class="form-label" for="manufacturer">Manufacturer Name</label>
+            <InputText id="manufacturer" class="form-control" @bind-Value="Equipment.ManufacturerName" />
+            <ValidationMessage For="@(() => Equipment.ManufacturerName)" />
+        </div>
+
+        <div class="form-field">
+            <label class="form-label" for="yom">Year Of Manufacture</label>
+            <InputNumber id="yom" class="form-control" @bind-Value="Equipment.YearOfManufacture" />
+            <ValidationMessage For="@(() => Equipment.YearOfManufacture)" />
+        </div>
+    }
 
     <div class="flex-row mt-2">
         <button type="submit" class="btn">Save</button>

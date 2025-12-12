@@ -15,11 +15,28 @@ public static class TransformerEndpoints
         // GET all
         group.MapGet("/", async (IRepository<Transformer> repo) =>
         {
-            var list = await repo.GetAllAsync();
+            var list = await repo.GetAllAsync(t => t.Asset.AssetType, t => t.Asset.Substation);
 
             var result = list.Select(t => new TransformerDto
             {
                 Id = t.Id,
+                Name = t.Name,
+                Asset = new AssetDto
+                {
+                    Id = t.Id,
+                    AssetType = new AssetTypeDto
+                    {
+                        Id = t.Asset.AssetType.Id,
+                        Code = t.Asset.AssetType.Code,
+                        Name = t.Asset.AssetType.Name
+                    },
+                    Substation = new SubstationDto
+                    {
+                        Id = t.Asset.SubstationId,
+                        Code = t.Asset.Substation.Code,
+                        Name = t.Asset.Substation.Name
+                    }
+                },
                 SerialNumber = t.SerialNumber,
                 ManufacturerName = t.ManufacturerName,
                 YearOfManufacture = t.YearOfManufacture,
@@ -35,12 +52,29 @@ public static class TransformerEndpoints
         // GET by id
         group.MapGet("/{id:guid}", async (Guid id, IRepository<Transformer> repo) =>
         {
-            var entity = await repo.GetByIdAsync(id);
+            var entity = await repo.GetByIdAsync(id, t => t.Asset, t => t.Asset.Substation);
             if (entity is null) return Results.NotFound();
 
             var dto = new TransformerDto
             {
                 Id = entity.Id,
+                Name = entity.Name,
+                Asset = new AssetDto
+                {
+                    Id = entity.Id,
+                    AssetType = new AssetTypeDto
+                    {
+                        Id = entity.Asset.AssetType.Id,
+                        Code = entity.Asset.AssetType.Code,
+                        Name = entity.Asset.AssetType.Name
+                    },
+                    Substation = new SubstationDto
+                    {
+                        Id = entity.Asset.SubstationId,
+                        Code = entity.Asset.Substation.Code,
+                        Name = entity.Asset.Substation.Name
+                    }
+                },
                 SerialNumber = entity.SerialNumber,
                 ManufacturerName = entity.ManufacturerName,
                 YearOfManufacture = entity.YearOfManufacture,
@@ -68,12 +102,14 @@ public static class TransformerEndpoints
                 AssetTypeId = dto.Asset.AssetTypeId,
                 InstallationDate = dto.Asset.InstallationDate,
                 SubstationId = dto.Asset.SubstationId,
+                CustomerId = dto.Asset.CustomerId,
                 Status = dto.Asset.Status
             };
 
             var entity = new Transformer
             {
                 Id = asset.Id,
+                Name = dto.Name,
                 Asset = asset,
                 SerialNumber = dto.SerialNumber,
                 ManufacturerName = dto.ManufacturerName,
@@ -91,7 +127,7 @@ public static class TransformerEndpoints
             var result = new TransformerDto
             {
                 Id = entity.Id,
-               
+
                 SerialNumber = entity.SerialNumber,
                 ManufacturerName = entity.ManufacturerName,
                 YearOfManufacture = entity.YearOfManufacture,
@@ -119,6 +155,7 @@ public static class TransformerEndpoints
             var existing = await repo.GetByIdAsync(id);
             if (existing is null) return Results.NotFound();
 
+            existing.Name = dto.Name;
             existing.SerialNumber = dto.SerialNumber;
             existing.ManufacturerName = dto.ManufacturerName;
             existing.YearOfManufacture = dto.YearOfManufacture;
@@ -134,6 +171,7 @@ public static class TransformerEndpoints
             var result = new TransformerDto
             {
                 Id = existing.Id,
+                Name = existing.Name,
                 SerialNumber = existing.SerialNumber,
                 ManufacturerName = existing.ManufacturerName,
                 YearOfManufacture = existing.YearOfManufacture,

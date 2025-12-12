@@ -14,6 +14,7 @@ public class AuditReportCreateValidator : AbstractValidator<AuditReportDto>
             .LessThanOrEqualTo(DateTime.UtcNow)
             .WithMessage("DateServiced cannot be in the future");
 
+/*
         RuleFor(x => x.WindingTemperature)
             .InclusiveBetween(0, 300)
             .When(x => x.WindingTemperature.HasValue);
@@ -32,6 +33,6 @@ public class AuditReportCreateValidator : AbstractValidator<AuditReportDto>
 
         RuleFor(x => x.OilMoistureContentPpm)
             .InclusiveBetween(0, 1000)
-            .When(x => x.OilMoistureContentPpm.HasValue);
+            .When(x => x.OilMoistureContentPpm.HasValue);*/
     }
 }

@@ -7,6 +7,9 @@ public class Transformer
 {
     [Key, ForeignKey("Asset")]
     public Guid Id { get; set; }   // same as Asset.Id
+   
+
+    public required string Name { get; set; }
 
     // Navigation
     public Asset? Asset { get; set; }
@@ -14,11 +17,11 @@ public class Transformer
     public required string SerialNumber { get; set; }
     public required string ManufacturerName { get; set; }
     public int YearOfManufacture { get; set; }
-    public double RatedCapacity { get; set; }
-    public double PrimaryVoltage { get; set; }
-    public double SecondaryVoltage { get; set; }
-    public required string TransformerType { get; set; }
-    public required string VectorGroup { get; set; }
+    public double? RatedCapacity { get; set; }
+    public double? PrimaryVoltage { get; set; }
+    public double? SecondaryVoltage { get; set; }
+    public string? TransformerType { get; set; }
+    public string? VectorGroup { get; set; }
 
     // Audit
     public DateTimeOffset CreatedAt { get; set; } = DateTimeOffset.UtcNow;

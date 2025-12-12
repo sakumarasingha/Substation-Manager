@@ -29,6 +29,5 @@ public class TransformerEntityTypeConfiguration : IEntityTypeConfiguration<Trans
                      .IsRequired()
                      .HasMaxLength(100);
 
-
        }
 }

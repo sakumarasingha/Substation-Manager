@@ -10,9 +10,13 @@
 
 @code {
     private TransformerDto newEquipments = new TransformerDto();
-    private async Task AddEquipments(TransformerDto equipment)
+
+    private async Task AddEquipments((TransformerDto Equipment, AssetDto Asset) args)
     {
-        // POST to your API
+        // Deconstruct the tuple
+        var (equipment, asset) = args;
+        newEquipments = equipment;
+        newEquipments.Asset = asset;
         var response = await Http.PostAsJsonAsync("http://localhost:5124/transformers", newEquipments);
 
         if (response.IsSuccessStatusCode)

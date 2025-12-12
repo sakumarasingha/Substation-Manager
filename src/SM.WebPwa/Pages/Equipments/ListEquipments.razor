@@ -21,14 +21,19 @@ else
         <thead>
             <tr>
                 <th>Name</th>
-                <th>Code</th>
+                <th>Type</th>
+                <th>Substation</th>
+                <th>Customer</th>
             </tr>
         </thead>
         <tbody>
             @foreach (var equipment in equipments)
             {
                 <tr>
-                    <td>@equipment.SerialNumber</td>
+                    <td>@equipment.Name</td>
+                    <td>@equipment?.Asset?.AssetType?.Name</td>
+                    <td>@equipment?.Asset?.Substation?.Name</td>
+                    <td></td>
                     <td>
                         <button @onclick="() => GoToEdit(equipment.Id)">Edit</button>
                     </td>
