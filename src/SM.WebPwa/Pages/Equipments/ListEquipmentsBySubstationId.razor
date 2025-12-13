@@ -1,0 +1,51 @@
+﻿@page "/equipments/bysubid/{id:guid}"
+@using SM.Shared
+@inject HttpClient Http
+@inject NavigationManager NavigationManager
+
+
+<PageTitle>Equipments</PageTitle>
+
+<h1>Equipments</h1>
+@if (equipments == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Type</th>
+                <th>Substation</th>
+                <th>Customer</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var equipment in equipments)
+            {
+                <tr>
+                    <td>@equipment.Name</td>
+                    <td>@equipment?.Asset?.AssetType?.Name</td>
+                    <td>@equipment?.Asset?.Substation?.Name</td>
+                    <td></td>
+                    <td>
+                        <button @onclick="() => GoToEdit(equipment.Id)">Edit</button>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@code {
+    void GoToEdit(Guid id) => NavigationManager.NavigateTo($"/equipments/edit/{id}");
+    private List<TransformerDto> equipments = new List<TransformerDto>();
+    [Parameter] public Guid id { get; set; }
+    protected override async Task OnInitializedAsync()
+    {
+        equipments = await Http.GetFromJsonAsync<List<TransformerDto>>($"http://localhost:5124/transformers/bysubid/{id}") ??
+        [];
+    }
+}

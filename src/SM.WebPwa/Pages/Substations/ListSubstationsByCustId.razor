@@ -29,6 +29,9 @@ else
                     <td>@substation.Name</td>
                     <td>@substation.Code</td>
                     <td>@substation.Customer?.Name</td>
+                    <td>
+                        <button @onclick="() => GoToEdit(substation.Id)">Edit</button>
+                    </td>
                 </tr>
             }
         </tbody>
@@ -36,6 +39,7 @@ else
 }
 
 @code {
+    void GoToEdit(Guid id) => NavigationManager.NavigateTo($"/substations/edit/{id}");
     [Parameter] public Guid id { get; set; }
     private List<SubstationDto> substations = new();
     protected override async Task OnInitializedAsync()

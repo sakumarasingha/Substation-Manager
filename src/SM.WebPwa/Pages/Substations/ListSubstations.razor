@@ -29,7 +29,9 @@ else
         <tbody>
             @foreach (var substation in substations)
             {
-                <tr>
+                var isSelected = selectedSubstationId == substation.Id;
+                <tr class="@GetRowClass(isSelected)" @onclick="@(() => OnRowClick(substation))"
+                    @onkeydown="@(e => OnRowKeyDown(e, substation))" tabindex="0" aria-selected="@isSelected">
                     <td>@substation.Name</td>
                     <td>@substation.Code</td>
                     <td>@substation.Customer?.Name</td>
@@ -44,6 +46,7 @@ else
 
 @code {
     private List<SubstationDto> substations = new();
+    private Guid? selectedSubstationId;
     protected override async Task OnInitializedAsync()
     {
         substations = await Http.GetFromJsonAsync<List<SubstationDto>>("http://localhost:5124/substations") ?? [];
@@ -51,4 +54,22 @@ else
 
     void GoToCreate() => NavigationManager.NavigateTo("/substations/create");
     void GoToEdit(Guid id) => NavigationManager.NavigateTo($"/substations/edit/{id}");
+
+    void GoToListEquipments(Guid id) => NavigationManager.NavigateTo($"/equipments/bysubid/{id}");
+    private void OnRowClick(SubstationDto substation)
+    {
+        selectedSubstationId = substation.Id;
+        GoToListEquipments(substation.Id);
+    }
+
+    private void OnRowKeyDown(KeyboardEventArgs e, SubstationDto substation)
+    {
+        // Support keyboard accessibility (Enter/Space to “click” the row)
+        if (e.Key is "Enter" or " ")
+        {
+            OnRowClick(substation);
+        }
+    }
+
+    private string GetRowClass(bool isSelected) => isSelected ? "table-active" : "";
 }

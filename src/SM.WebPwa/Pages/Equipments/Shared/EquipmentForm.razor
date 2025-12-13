@@ -52,9 +52,7 @@
     <!-- Customer dropdown -->
     <div class="form-field">
         <label class="form-label" for="customer">Customer</label>
-
-
-        <InputSelect id="customer" TValue="Guid ?" @bind-Value="CustomerId" class="form-control"
+        <InputSelect id="customer"  @bind-Value="Equipment.Asset.CustomerId" class="form-control"
             @onchange="OnCustomerChanged">
 
             <option value="">-- Select Customer --</option>
@@ -69,8 +67,7 @@
     </div>
     <div class="form-field">
         <label class="form-label" for="substation">Substation</label>
-        <InputSelect id="substation" @bind-Value="Equipment.Asset.SubstationId" class="form-control"
-            disabled="@(CustomerId is null)">
+        <InputSelect id="substation" @bind-Value="Equipment.Asset.SubstationId" class="form-control">
             <option value="">-- Select Substation --</option>
             @if (substations is not null)
             {

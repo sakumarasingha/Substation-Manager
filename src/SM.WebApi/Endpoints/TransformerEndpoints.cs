@@ -2,6 +2,7 @@ using FluentValidation;
 using SM.Shared;
 using SM.WebApi.Domain;
 using SM.WebApi.Infrastructure;
+using SM.WebApi.Migrations;
 
 namespace SM.WebApi.Endpoints;
 
@@ -24,10 +25,12 @@ public static class TransformerEndpoints
                 Asset = new AssetDto
                 {
                     Id = t.Id,
+                    AssetTypeId = t.Asset.AssetTypeId,
+                    SubstationId = t.Asset.SubstationId,
+                    CustomerId = t.Asset.CustomerId,
                     AssetType = new AssetTypeDto
                     {
                         Id = t.Asset.AssetType.Id,
-                        Code = t.Asset.AssetType.Code,
                         Name = t.Asset.AssetType.Name
                     },
                     Substation = new SubstationDto
@@ -52,7 +55,7 @@ public static class TransformerEndpoints
         // GET by id
         group.MapGet("/{id:guid}", async (Guid id, IRepository<Transformer> repo) =>
         {
-            var entity = await repo.GetByIdAsync(id, t => t.Asset, t => t.Asset.Substation);
+            var entity = await repo.GetByIdAsync(id, t => t.Asset.AssetType, t => t.Asset.Substation);
             if (entity is null) return Results.NotFound();
 
             var dto = new TransformerDto
@@ -62,15 +65,17 @@ public static class TransformerEndpoints
                 Asset = new AssetDto
                 {
                     Id = entity.Id,
+                    AssetTypeId = entity.Asset.AssetTypeId,
+                    SubstationId = entity.Asset.SubstationId,
+                    CustomerId = entity.Asset.CustomerId,
                     AssetType = new AssetTypeDto
                     {
                         Id = entity.Asset.AssetType.Id,
-                        Code = entity.Asset.AssetType.Code,
                         Name = entity.Asset.AssetType.Name
                     },
                     Substation = new SubstationDto
                     {
-                        Id = entity.Asset.SubstationId,
+                        Id = entity.Asset.Substation.Id,
                         Code = entity.Asset.Substation.Code,
                         Name = entity.Asset.Substation.Name
                     }
@@ -85,6 +90,44 @@ public static class TransformerEndpoints
                 VectorGroup = entity.VectorGroup
             };
             return Results.Ok(dto);
+        });
+
+        // GET by Substation id
+        group.MapGet("/bysubid/{id:guid}", async (Guid id, IRepository<Transformer> repo) =>
+        {
+            var list = await repo.GetManyAsync(t => t.Asset.SubstationId == id, t => t.Asset.AssetType, t => t.Asset.Substation);
+            var result = list.Select(entity => new TransformerDto
+            {
+                Id = entity.Id,
+                Name = entity.Name,
+                Asset = new AssetDto
+                {
+                    Id = entity.Id,
+                    AssetTypeId = entity.Asset.AssetTypeId,
+                    SubstationId = entity.Asset.SubstationId,
+                    CustomerId = entity.Asset.CustomerId,
+                    AssetType = new AssetTypeDto
+                    {
+                        Id = entity.Asset.AssetType.Id,
+                        Name = entity.Asset.AssetType.Name
+                    },
+                    Substation = new SubstationDto
+                    {
+                        Id = entity.Asset.Substation.Id,
+                        Code = entity.Asset.Substation.Code,
+                        Name = entity.Asset.Substation.Name
+                    }
+                },
+                SerialNumber = entity.SerialNumber,
+                ManufacturerName = entity.ManufacturerName,
+                YearOfManufacture = entity.YearOfManufacture,
+                RatedCapacity = entity.RatedCapacity,
+                PrimaryVoltage = entity.PrimaryVoltage,
+                SecondaryVoltage = entity.SecondaryVoltage,
+                TransformerType = entity.TransformerType,
+                VectorGroup = entity.VectorGroup
+            });
+            return Results.Ok(result);
         });
 
         // POST (create)

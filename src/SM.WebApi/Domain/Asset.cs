@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using SM.WebApi.Migrations;
 
 namespace SM.WebApi.Domain;
 
