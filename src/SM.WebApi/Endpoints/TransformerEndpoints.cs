@@ -16,7 +16,7 @@ public static class TransformerEndpoints
         // GET all
         group.MapGet("/", async (IRepository<Transformer> repo) =>
         {
-            var list = await repo.GetAllAsync(t => t.Asset.AssetType, t => t.Asset.Substation);
+            var list = await repo.GetAllAsync(t => t.Asset.AssetType, t => t.Asset.Substation, t => t.Asset.Customer);
 
             var result = list.Select(t => new TransformerDto
             {
@@ -38,6 +38,12 @@ public static class TransformerEndpoints
                         Id = t.Asset.SubstationId,
                         Code = t.Asset.Substation.Code,
                         Name = t.Asset.Substation.Name
+                    },
+                    Customer = new CustomerDto
+                    {
+                        Id = t.Asset.Customer.Id,
+                        Name = t.Asset.Customer.Name,
+                        Code = t.Asset.Customer.Code
                     }
                 },
                 SerialNumber = t.SerialNumber,
@@ -55,7 +61,7 @@ public static class TransformerEndpoints
         // GET by id
         group.MapGet("/{id:guid}", async (Guid id, IRepository<Transformer> repo) =>
         {
-            var entity = await repo.GetByIdAsync(id, t => t.Asset.AssetType, t => t.Asset.Substation);
+            var entity = await repo.GetByIdAsync(id, t => t.Asset.AssetType, t => t.Asset.Substation, t => t.Asset.Customer);
             if (entity is null) return Results.NotFound();
 
             var dto = new TransformerDto
@@ -78,6 +84,12 @@ public static class TransformerEndpoints
                         Id = entity.Asset.Substation.Id,
                         Code = entity.Asset.Substation.Code,
                         Name = entity.Asset.Substation.Name
+                    },
+                    Customer = new CustomerDto
+                    {
+                        Id = entity.Asset.Customer.Id,
+                        Name = entity.Asset.Customer.Name,
+                        Code = entity.Asset.Customer.Code
                     }
                 },
                 SerialNumber = entity.SerialNumber,
@@ -95,7 +107,7 @@ public static class TransformerEndpoints
         // GET by Substation id
         group.MapGet("/bysubid/{id:guid}", async (Guid id, IRepository<Transformer> repo) =>
         {
-            var list = await repo.GetManyAsync(t => t.Asset.SubstationId == id, t => t.Asset.AssetType, t => t.Asset.Substation);
+            var list = await repo.GetManyAsync(t => t.Asset.SubstationId == id, t => t.Asset.AssetType, t => t.Asset.Substation, t => t.Asset.Customer);
             var result = list.Select(entity => new TransformerDto
             {
                 Id = entity.Id,
@@ -116,6 +128,12 @@ public static class TransformerEndpoints
                         Id = entity.Asset.Substation.Id,
                         Code = entity.Asset.Substation.Code,
                         Name = entity.Asset.Substation.Name
+                    },
+                    Customer = new CustomerDto
+                    {
+                        Id = entity.Asset.Customer.Id,
+                        Name = entity.Asset.Customer.Name,
+                        Code = entity.Asset.Customer.Code
                     }
                 },
                 SerialNumber = entity.SerialNumber,

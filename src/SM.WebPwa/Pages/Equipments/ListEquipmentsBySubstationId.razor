@@ -29,10 +29,7 @@ else
                     <td>@equipment.Name</td>
                     <td>@equipment?.Asset?.AssetType?.Name</td>
                     <td>@equipment?.Asset?.Substation?.Name</td>
-                    <td></td>
-                    <td>
-                        <button @onclick="() => GoToEdit(equipment.Id)">Edit</button>
-                    </td>
+                    <td>@equipment?.Asset?.Customer?.Name</td>
                 </tr>
             }
         </tbody>
@@ -40,7 +37,6 @@ else
 }
 
 @code {
-    void GoToEdit(Guid id) => NavigationManager.NavigateTo($"/equipments/edit/{id}");
     private List<TransformerDto> equipments = new List<TransformerDto>();
     [Parameter] public Guid id { get; set; }
     protected override async Task OnInitializedAsync()

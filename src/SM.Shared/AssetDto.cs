@@ -13,4 +13,5 @@ public class AssetDto
     // Navigation
     public AssetTypeDto? AssetType { get; set; }
     public TransformerDto? Transformer { get; set; }
+    public CustomerDto? Customer { get; set; }
 }

@@ -6,9 +6,8 @@
     [Parameter] public SubstationDto Substation { get; set; } = new SubstationDto();
 
     public Guid? CustomerId { get; set; }
-    [Parameter] public AssetDto Asset { get; set; } = new AssetDto();
     [Parameter] public TransformerDto Equipment { get; set; } = new TransformerDto();
-    [Parameter] public EventCallback<(TransformerDto Equipment, AssetDto Asset)> OnValidSubmit { get; set; }
+    [Parameter] public EventCallback<TransformerDto> OnValidSubmit { get; set; }
 
     private void Cancel()
     {
@@ -22,29 +21,17 @@
     private List<AssetTypeDto> types = new List<AssetTypeDto>();
     protected override async Task OnInitializedAsync()
     {
+        Equipment.Asset = new AssetDto();
         customers = await Http.GetFromJsonAsync<List<CustomerDto>>("http://localhost:5124/customers") ?? [];
         substations = await Http.GetFromJsonAsync<List<SubstationDto>>($"http://localhost:5124/substations") ?? new
         List<SubstationDto>();
         types = await Http.GetFromJsonAsync<List<AssetTypeDto>>("http://localhost:5124/assettypes") ?? [];
     }
 
-    [Inject] IJSRuntime JS { get; set; } = default!;
-    private async Task ShowAlert()
-    {
-        await JS.InvokeVoidAsync("alert", "Hi");
-    }
-
-    private void OnCustomerChanged(ChangeEventArgs e)
-    {
-        JS.InvokeVoidAsync("alert", "Hi");
-    }
-
-
-
 }
 
 
-<EditForm Model="Equipment" OnValidSubmit="() => OnValidSubmit.InvokeAsync((Equipment, Asset))" class="edit-form">
+<EditForm Model="Equipment" OnValidSubmit="() => OnValidSubmit.InvokeAsync(Equipment)" class="edit-form">
     <h2 class="form-title">Equipments</h2>
 
     <DataAnnotationsValidator />
@@ -52,8 +39,7 @@
     <!-- Customer dropdown -->
     <div class="form-field">
         <label class="form-label" for="customer">Customer</label>
-        <InputSelect id="customer"  @bind-Value="Equipment.Asset.CustomerId" class="form-control"
-            @onchange="OnCustomerChanged">
+        <InputSelect id="customer"  @bind-Value="Equipment.Asset.CustomerId" class="form-control">
 
             <option value="">-- Select Customer --</option>
             @if (customers is not null)

@@ -32,5 +32,6 @@ public class Asset
 
     public AssetType AssetType { get; set; } = null!;
     public Substation Substation { get; set; } = null!;
+    public Customer Customer { get; set; } = null!;
 
 }
