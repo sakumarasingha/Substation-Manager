@@ -21,7 +21,11 @@ public static class AuditReportEndpoints
                 Id = r.Id,
                 ReportNumber = r.ReportNumber,
                 TransformerId = r.TransformerId,
+                CustomerId = r.CustomerId,
+                SubstationId = r.SubstationId,
                 DateServiced = r.DateServiced,
+                Submitted = r.Submitted,
+                SubmittedDateTime = r.SubmittedDateTime,
                 WindingTemperature = r.WindingTemperature,
                 TransformerOilLevelPercent = r.TransformerOilLevelPercent,
                 SilicaGelBreatherOk = r.SilicaGelBreatherOk,
@@ -44,6 +48,8 @@ public static class AuditReportEndpoints
                 Id = entity.Id,
                 ReportNumber = entity.ReportNumber,
                 TransformerId = entity.TransformerId,
+                CustomerId = entity.CustomerId,
+                SubstationId = entity.SubstationId,
                 DateServiced = entity.DateServiced,
                 WindingTemperature = entity.WindingTemperature,
                 TransformerOilLevelPercent = entity.TransformerOilLevelPercent,
@@ -70,7 +76,11 @@ public static class AuditReportEndpoints
             {
                 ReportNumber = dto.ReportNumber,
                 TransformerId = dto.TransformerId,
+                CustomerId = dto.CustomerId,
+                SubstationId = dto.SubstationId,
                 DateServiced = dto.DateServiced,
+                Submitted = dto.Submitted,
+                SubmittedDateTime = dto.SubmittedDateTime,
                 WindingTemperature = dto.WindingTemperature,
                 TransformerOilLevelPercent = dto.TransformerOilLevelPercent,
                 SilicaGelBreatherOk = dto.SilicaGelBreatherOk,
@@ -88,7 +98,11 @@ public static class AuditReportEndpoints
                 Id = entity.Id,
                 ReportNumber = entity.ReportNumber,
                 TransformerId = entity.TransformerId,
+                CustomerId = entity.CustomerId,
+                SubstationId = entity.SubstationId,
                 DateServiced = entity.DateServiced,
+                Submitted = entity.Submitted,
+                SubmittedDateTime = entity.SubmittedDateTime,
                 WindingTemperature = entity.WindingTemperature,
                 TransformerOilLevelPercent = entity.TransformerOilLevelPercent,
                 SilicaGelBreatherOk = entity.SilicaGelBreatherOk,
@@ -101,6 +115,45 @@ public static class AuditReportEndpoints
             return Results.Created($"/auditreports/{entity.Id}", result);
         });
 
+        // PUT - Subvmit
+        group.MapPut("/submit/{id:guid}", async (
+            Guid id,
+            AuditReportDto dto,
+            IRepository<TransformerAuditReport> repo,
+            IValidator<AuditReportDto> validator) =>
+        {
+            var validation = await validator.ValidateAsync(dto);
+            if (!validation.IsValid)
+                return Results.BadRequest(validation.Errors);
+
+            var existing = await repo.GetByIdAsync(dto.Id);
+            if (existing is null) return Results.NotFound();
+            existing.Submitted = true;
+            existing.SubmittedDateTime = DateTime.UtcNow;
+            repo.Update(existing);
+            await repo.SaveChangesAsync();
+
+            var result = new AuditReportDto
+            {
+                Id = existing.Id,
+                ReportNumber = existing.ReportNumber,
+                TransformerId = existing.TransformerId,
+                CustomerId = existing.CustomerId,
+                SubstationId = existing.SubstationId,
+                DateServiced = existing.DateServiced,
+                Submitted = existing.Submitted,
+                SubmittedDateTime = existing.SubmittedDateTime,
+                WindingTemperature = existing.WindingTemperature,
+                TransformerOilLevelPercent = existing.TransformerOilLevelPercent,
+                SilicaGelBreatherOk = existing.SilicaGelBreatherOk,
+                BuchholzRelayOk = existing.BuchholzRelayOk,
+                OilDielectricBreakdownVoltage = existing.OilDielectricBreakdownVoltage,
+                RequiredBdvLevel = existing.RequiredBdvLevel,
+                OilMoistureContentPpm = existing.OilMoistureContentPpm
+            };
+
+            return Results.Ok(result);
+        });
         // PUT (update)
         group.MapPut("/{id:guid}", async (
             Guid id,
@@ -117,6 +170,8 @@ public static class AuditReportEndpoints
 
             existing.ReportNumber = dto.ReportNumber;
             existing.TransformerId = dto.TransformerId;
+            existing.CustomerId = dto.CustomerId;
+            existing.SubstationId = dto.SubstationId;
             existing.DateServiced = dto.DateServiced;
             existing.WindingTemperature = dto.WindingTemperature;
             existing.TransformerOilLevelPercent = dto.TransformerOilLevelPercent;
@@ -134,7 +189,11 @@ public static class AuditReportEndpoints
                 Id = existing.Id,
                 ReportNumber = existing.ReportNumber,
                 TransformerId = existing.TransformerId,
+                CustomerId = existing.CustomerId,
+                SubstationId = existing.SubstationId,
                 DateServiced = existing.DateServiced,
+                Submitted = existing.Submitted,
+                SubmittedDateTime = existing.SubmittedDateTime,
                 WindingTemperature = existing.WindingTemperature,
                 TransformerOilLevelPercent = existing.TransformerOilLevelPercent,
                 SilicaGelBreatherOk = existing.SilicaGelBreatherOk,

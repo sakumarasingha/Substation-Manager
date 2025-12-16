@@ -58,6 +58,19 @@ public static class TransformerEndpoints
             return Results.Ok(result);
         });
 
+
+       // GET all
+        group.MapGet("/onlytransformers", async (IRepository<Transformer> repo) =>
+        {
+            var list = await repo.GetManyAsync(s => s.Asset.AssetType.Name == "Transformers", t => t.Asset.AssetType);
+            var result = list.Select(t => new TransformerDto
+            {
+                Id = t.Id,
+                Name = t.Name               
+            });
+            return Results.Ok(result);
+        });
+
         // GET by id
         group.MapGet("/{id:guid}", async (Guid id, IRepository<Transformer> repo) =>
         {

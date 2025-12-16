@@ -5,7 +5,8 @@ public class TransformerAuditReport
     public Guid Id { get; set; }
     public required string ReportNumber { get; set; }
     public Guid TransformerId { get; set; }
-    public Transformer? Transformer { get; set; }
+    public Guid SubstationId { get; set; }
+    public Guid CustomerId { get; set; }
     public double? WindingTemperature { get; set; }
     public double? TransformerOilLevelPercent { get; set; }
     public bool? SilicaGelBreatherOk { get; set; }
@@ -15,6 +16,9 @@ public class TransformerAuditReport
     public double? OilMoistureContentPpm { get; set; }
     public DateTime DateServiced { get; set; }
     public string? Notes { get; set; }
+
+    public bool Submitted { get; set;}
+    public DateTimeOffset? SubmittedDateTime { get; set; }
 
     // Audit
     public DateTimeOffset CreatedAt { get; set; } = DateTimeOffset.UtcNow;
@@ -29,4 +33,6 @@ public class TransformerAuditReport
 
     // Concurrency
     public byte[]? RowVersion { get; set; }
+    
+    public Transformer? Transformer { get; set; }
 }

@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using SM.WebApi.Infrastructure;
 
@@ -11,9 +12,11 @@ using SM.WebApi.Infrastructure;
 namespace SM.WebApi.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20251214102736_report")]
+    partial class report
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -402,12 +405,6 @@ namespace SM.WebApi.Migrations
 
                     b.Property<bool?>("SilicaGelBreatherOk")
                         .HasColumnType("bit");
-
-                    b.Property<bool>("Submitted")
-                        .HasColumnType("bit");
-
-                    b.Property<DateTimeOffset?>("SubmittedDateTime")
-                        .HasColumnType("datetimeoffset");
 
                     b.Property<Guid>("SubstationId")
                         .HasColumnType("uniqueidentifier");

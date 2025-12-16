@@ -1,0 +1,26 @@
+﻿@page "/auditreports/edit/{id:guid}"
+@using SM.Shared
+@using SM.WebPwa.Pages.Reports.Shared
+@inject HttpClient Http
+@inject NavigationManager NavigationManager
+
+<h3>Edit Equipments</h3>
+
+<TransformerAuditForm Report="report" OnValidSubmit="UpdateUnsubmittedAuditReport" />
+
+@code {
+    [Parameter] public Guid id { get; set; }
+    private AuditReportDto? report = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        report = await Http.GetFromJsonAsync<AuditReportDto>($"http://localhost:5124/auditreports/{id}");
+    }
+
+    private async Task UpdateUnsubmittedAuditReport(AuditReportDto report)
+    {
+        var response = await Http.PutAsJsonAsync($"http://localhost:5124/auditreports/{id}", report);
+        NavigationManager.NavigateTo("/equipments");
+    }
+
+}

@@ -3,8 +3,11 @@ public class AuditReportDto
     public Guid Id { get; set; }
     public string ReportNumber { get; set; } = string.Empty;
     public Guid TransformerId { get; set; }
+    public Guid SubstationId { get; set; }
+    public Guid CustomerId { get; set; }
     public DateTime DateServiced { get; set; }
-
+    public bool Submitted { get; set;}
+    public DateTimeOffset? SubmittedDateTime { get; set; }
     public double? WindingTemperature { get; set; }
     public double? TransformerOilLevelPercent { get; set; }
     public bool? SilicaGelBreatherOk { get; set; }

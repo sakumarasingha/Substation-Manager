@@ -1,0 +1,161 @@
+@using SM.Shared
+@using System.Globalization
+@inject HttpClient Http
+@inject IJSRuntime JS
+@inject NavigationManager Nav
+@code {
+
+    [Parameter] public AuditReportDto Report { get; set; } = new AuditReportDto();
+    [Parameter] public EventCallback<AuditReportDto> OnValidSubmit { get; set; }
+
+    private void Cancel()
+    {
+        // Navigate to the equipments list page
+        Nav.NavigateTo("/auditreports");
+    }
+
+    private List<CustomerDto> customers = new();
+    private List<SubstationDto> substations = new List<SubstationDto>();
+    private List<TransformerDto> equipments = new List<TransformerDto>();
+    private List<AssetTypeDto> types = new List<AssetTypeDto>();
+    AssetTypeDto selectedType = new AssetTypeDto();
+    protected override async Task OnInitializedAsync()
+    {
+        customers = await Http.GetFromJsonAsync<List<CustomerDto>>("http://localhost:5124/customers") ?? [];
+        // substations = await Http.GetFromJsonAsync<List<SubstationDto>>($"http://localhost:5124/substations") ??
+        //newList<SubstationDto>();
+        types = await Http.GetFromJsonAsync<List<AssetTypeDto>>("http://localhost:5124/assettypes") ?? [];
+        equipments = await Http.GetFromJsonAsync<List<TransformerDto>>("http://localhost:5124/transformers/onlytransformers") ??
+        [];
+    }
+
+
+    Guid CustomerId
+    {
+        get => Report.CustomerId;
+        set
+        {
+            if (Report.CustomerId == value) return;
+            Report.CustomerId = value;
+            _ = OnCustomerChangedAsync(value); // side effects here
+        }
+    }
+
+
+    private async Task OnCustomerChangedAsync(Guid selectedId)
+    {
+        Report.SubstationId = Guid.Empty;
+        substations = await
+        Http.GetFromJsonAsync<List<SubstationDto>>($"http://localhost:5124/substations/bycustid/{selectedId}") ?? new
+        List<SubstationDto>();
+    }
+
+}
+
+
+<EditForm Model="Report" OnValidSubmit="() => OnValidSubmit.InvokeAsync(Report)" class="edit-form">
+    <h2 class="form-title">Audit Report</h2>
+
+    <DataAnnotationsValidator />
+    <ValidationSummary class="validation-summary" />
+    <div class="form-field">
+        <label class="form-label" for="customer">Customer</label>
+        <InputSelect id="customer" @bind-Value="CustomerId" TValue="Guid" class="form-control">
+
+            <option value="">-- Select Customer --</option>
+            @if (customers is not null)
+            {
+                @foreach (var c in customers)
+                {
+                    <option value="@c.Id">@c.Code - @c.Name</option>
+                }
+            }
+        </InputSelect>
+    </div>
+    <div class="form-field">
+        <label class="form-label" for="substation">Substation</label>
+        <InputSelect id="substation" @bind-Value="Report.SubstationId" TValue="Guid" class="form-control">
+            <option value="">-- Select Substation --</option>
+            @if (substations is not null)
+            {
+                @foreach (SubstationDto c in substations)
+                {
+                    <option value="@c.Id">@c.Code - @c.Name</option>
+                }
+            }
+        </InputSelect>
+    </div>
+    <div class="form-field">
+        <label class="form-label" for="assettype">Equipment</label>
+        <InputSelect id="assettype" @bind-Value="selectedType.Name" class="form-control">
+            <option value="">-- Select Equipment Type --</option>
+            @if (types is not null)
+            {
+                @foreach (AssetTypeDto type in types)
+                {
+                    <option value="@type.Id">@type.Name</option>
+                }
+            }
+        </InputSelect>
+    </div>
+
+    <div class="form-field">
+        <label class="form-label" for="equipment">Equipment</label>
+        <InputSelect id="equipment" @bind-Value="Report.TransformerId" class="form-control">
+            <option value="">-- Select Equipment Type --</option>
+            @if (substations is not null)
+            {
+                @foreach (TransformerDto equipment in equipments)
+                {
+                    <option value="@equipment.Id">@equipment.Name</option>
+                }
+            }
+        </InputSelect>
+    </div>
+
+    <div class="form-field">
+        <label class="form-label" for="name">Report Number</label>
+        <InputText id="reportr_number" @bind-Value="Report.ReportNumber" class="form-control" placeholder="Report001" />
+        <ValidationMessage For="@(() => Report.ReportNumber)" class="validation-message" />
+    </div>
+
+    <div class="form-field">
+        <label class="form-label" for="serial">Winding Temperature</label>
+        <InputNumber id="transformer_oil_level" class="form-control" @bind-Value="Report.TransformerOilLevelPercent"
+            TValue="double?" />
+        <ValidationMessage For="@(() => Report.WindingTemperature)" />
+    </div>
+
+    <div class="form-field">
+        <label class="form-label" for="oil-level">Transformer Oil Level (%)</label>
+        <InputNumber id="oil_level" class="form-control" @bind-Value="Report.TransformerOilLevelPercent"
+            TValue="double?" />
+        <ValidationMessage For="@(() => Report.TransformerOilLevelPercent)" />
+    </div>
+
+    <div class="form-field">
+        <label class="form-label" for="yom">Silica Gel Breather Ok</label>
+        <InputSelect id="silica_gel_breather_ok" class="form-control" @bind-Value="Report.SilicaGelBreatherOk"
+            TValue="bool?">
+            <option value="">-- Select --</option> @* maps to null *@
+            <option value="true">Yes</option>
+            <option value="false">No</option>
+        </InputSelect>
+        <ValidationMessage For="@(() => Report.SilicaGelBreatherOk)" />
+    </div>
+
+    <div class="form-field">
+        <label class="form-label" for="yom">Buchholz Relay Ok</label>
+        <InputSelect id="buchholz_relay_ok" class="form-control" @bind-Value="Report.BuchholzRelayOk" TValue="bool?">
+            <option value="">-- Select --</option> @* maps to null *@
+            <option value="true">Yes</option>
+            <option value="false">No</option>
+        </InputSelect>
+        <ValidationMessage For="@(() => Report.BuchholzRelayOk)" />
+    </div>
+
+    <div class="flex-row mt-2">
+        <button type="submit" class="btn">Save</button>
+        <button type="button" class="btn btn-outline" @onclick="Cancel">Cancel</button>
+    </div>
+</EditForm>
