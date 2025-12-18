@@ -30,7 +30,9 @@ else
         <tbody>
             @foreach (var equipment in equipments)
             {
-                <tr>
+                var isSelected = selectedTransformerId == equipment.Id;
+                <tr class="@GetRowClass(isSelected)" @onclick="@(() => OnRowClick(equipment))"
+                    @onkeydown="@(e => OnRowKeyDown(e, equipment))" tabindex="0" aria-selected="@isSelected">
                     <td>@equipment.Name</td>
                     <td>@equipment?.Asset?.AssetType?.Name</td>
                     <td>@equipment?.Asset?.Substation?.Name</td>
@@ -46,6 +48,8 @@ else
 
 @code {
     private List<TransformerDto> equipments = new List<TransformerDto>();
+    private Guid? selectedTransformerId;
+    void GoToListReports(Guid id) => NavigationManager.NavigateTo($"/auditreports/byequid/{id}");
     protected override async Task OnInitializedAsync()
     {
         equipments = await Http.GetFromJsonAsync<List<TransformerDto>>("http://localhost:5124/transformers") ?? [];
@@ -53,4 +57,21 @@ else
 
     void GoToCreate() => NavigationManager.NavigateTo("/equipments/create");
     void GoToEdit(Guid id) => NavigationManager.NavigateTo($"/equipments/edit/{id}");
+
+    private void OnRowClick(TransformerDto transformer)
+    {
+        selectedTransformerId = transformer.Id;
+        GoToListReports(transformer.Id);
+    }
+
+    private void OnRowKeyDown(KeyboardEventArgs e, TransformerDto transformer)
+    {
+        // Support keyboard accessibility (Enter/Space to “click” the row)
+        if (e.Key is "Enter" or " ")
+        {
+            OnRowClick(transformer);
+        }
+    }
+
+    private string GetRowClass(bool isSelected) => isSelected ? "table-active" : "";
 }

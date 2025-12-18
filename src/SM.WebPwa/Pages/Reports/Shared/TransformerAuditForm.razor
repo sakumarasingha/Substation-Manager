@@ -25,8 +25,8 @@
         // substations = await Http.GetFromJsonAsync<List<SubstationDto>>($"http://localhost:5124/substations") ??
         //newList<SubstationDto>();
         types = await Http.GetFromJsonAsync<List<AssetTypeDto>>("http://localhost:5124/assettypes") ?? [];
-        equipments = await Http.GetFromJsonAsync<List<TransformerDto>>("http://localhost:5124/transformers/onlytransformers") ??
-        [];
+        //equipments = await Http.GetFromJsonAsync<List<TransformerDto>>("http://localhost:5124/transformers/onlytransformers") ??
+        //[];
     }
 
 
@@ -41,6 +41,17 @@
         }
     }
 
+    Guid SubstationId
+    {
+        get => Report.SubstationId;
+        set
+        {
+            if (Report.SubstationId == value) return;
+            Report.SubstationId = value;
+            _ = OnSubstationChangedAsync(value); // side effects here
+        }
+    }
+
 
     private async Task OnCustomerChangedAsync(Guid selectedId)
     {
@@ -48,6 +59,15 @@
         substations = await
         Http.GetFromJsonAsync<List<SubstationDto>>($"http://localhost:5124/substations/bycustid/{selectedId}") ?? new
         List<SubstationDto>();
+    }
+
+    
+    private async Task OnSubstationChangedAsync(Guid selectedId)
+    {
+        Report.TransformerId = Guid.Empty;
+        equipments = await
+        Http.GetFromJsonAsync<List<TransformerDto>>($"http://localhost:5124/transformers/bysubid/{selectedId}") ?? new
+        List<TransformerDto>();
     }
 
 }
@@ -60,7 +80,7 @@
     <ValidationSummary class="validation-summary" />
     <div class="form-field">
         <label class="form-label" for="customer">Customer</label>
-        <InputSelect id="customer" @bind-Value="CustomerId" TValue="Guid" class="form-control">
+        <InputSelect id="customer" @bind-Value="Report.CustomerId" TValue="Guid" class="form-control">
 
             <option value="">-- Select Customer --</option>
             @if (customers is not null)

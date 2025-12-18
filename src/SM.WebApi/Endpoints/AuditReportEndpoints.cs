@@ -51,6 +51,8 @@ public static class AuditReportEndpoints
                 CustomerId = entity.CustomerId,
                 SubstationId = entity.SubstationId,
                 DateServiced = entity.DateServiced,
+                Submitted = entity.Submitted,
+                SubmittedDateTime = entity.SubmittedDateTime,
                 WindingTemperature = entity.WindingTemperature,
                 TransformerOilLevelPercent = entity.TransformerOilLevelPercent,
                 SilicaGelBreatherOk = entity.SilicaGelBreatherOk,
@@ -60,6 +62,31 @@ public static class AuditReportEndpoints
                 OilMoistureContentPpm = entity.OilMoistureContentPpm
             };
             return Results.Ok(dto);
+        });
+
+        // GET by id
+        group.MapGet("/byequid/{id:guid}", async (Guid id, IRepository<TransformerAuditReport> repo) =>
+        {
+            var list = await repo.GetManyAsync(t => t.TransformerId == id);
+            var result = list.Select(entity => new AuditReportDto
+            {
+                Id = entity.Id,
+                ReportNumber = entity.ReportNumber,
+                TransformerId = entity.TransformerId,
+                CustomerId = entity.CustomerId,
+                SubstationId = entity.SubstationId,
+                DateServiced = entity.DateServiced,
+                Submitted = entity.Submitted,
+                SubmittedDateTime = entity.SubmittedDateTime,
+                WindingTemperature = entity.WindingTemperature,
+                TransformerOilLevelPercent = entity.TransformerOilLevelPercent,
+                SilicaGelBreatherOk = entity.SilicaGelBreatherOk,
+                BuchholzRelayOk = entity.BuchholzRelayOk,
+                OilDielectricBreakdownVoltage = entity.OilDielectricBreakdownVoltage,
+                RequiredBdvLevel = entity.RequiredBdvLevel,
+                OilMoistureContentPpm = entity.OilMoistureContentPpm
+            });
+            return Results.Ok(result);
         });
 
         // POST (create)
@@ -154,6 +181,7 @@ public static class AuditReportEndpoints
 
             return Results.Ok(result);
         });
+
         // PUT (update)
         group.MapPut("/{id:guid}", async (
             Guid id,
