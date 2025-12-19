@@ -34,8 +34,8 @@ else
                 <tr>
                     <td>@report.DateServiced</td>
                     <td>@report.ReportNumber</td>
-                    <td>@report.SubstationId</td>
-                    <td>@report.CustomerId</td>
+                    <td>@report.Substation?.Name</td>
+                    <td>@report.Customer?.Name</td>
                     <td>
                         <button @onclick="() => GoToEdit(report.Id)" disabled="@report.Submitted">Edit</button>
                     </td>

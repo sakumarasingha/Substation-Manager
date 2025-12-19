@@ -1,3 +1,5 @@
+using SM.Shared;
+
 public class AuditReportDto
 {
     public Guid Id { get; set; }
@@ -5,8 +7,9 @@ public class AuditReportDto
     public Guid TransformerId { get; set; }
     public Guid SubstationId { get; set; }
     public Guid CustomerId { get; set; }
+    public Guid AssetTypeId { get; set; }
     public DateTime DateServiced { get; set; }
-    public bool Submitted { get; set;}
+    public bool Submitted { get; set; }
     public DateTimeOffset? SubmittedDateTime { get; set; }
     public double? WindingTemperature { get; set; }
     public double? TransformerOilLevelPercent { get; set; }
@@ -15,4 +18,9 @@ public class AuditReportDto
     public double? OilDielectricBreakdownVoltage { get; set; }
     public double? RequiredBdvLevel { get; set; }
     public double? OilMoistureContentPpm { get; set; }
+
+    public SubstationDto? Substation { get; set; }
+    public AssetTypeDto? AssetType { get; set; }
+    public TransformerDto? Transformer { get; set; }
+    public CustomerDto? Customer { get; set; }
 }

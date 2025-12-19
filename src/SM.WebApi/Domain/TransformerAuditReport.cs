@@ -7,6 +7,7 @@ public class TransformerAuditReport
     public Guid TransformerId { get; set; }
     public Guid SubstationId { get; set; }
     public Guid CustomerId { get; set; }
+    public Guid AssetTypeId { get; set; }
     public double? WindingTemperature { get; set; }
     public double? TransformerOilLevelPercent { get; set; }
     public bool? SilicaGelBreatherOk { get; set; }

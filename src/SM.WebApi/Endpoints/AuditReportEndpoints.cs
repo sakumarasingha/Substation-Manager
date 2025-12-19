@@ -15,14 +15,26 @@ public static class AuditReportEndpoints
         // GET all
         group.MapGet("/", async (IRepository<TransformerAuditReport> repo) =>
         {
-            var list = await repo.GetAllAsync();
+            var list = await repo.GetAllAsync(t => t.Transformer.Asset.Customer, t => t.Transformer.Asset.AssetType, t => t.Transformer.Asset.Substation);
             var result = list.Select(r => new AuditReportDto
             {
                 Id = r.Id,
                 ReportNumber = r.ReportNumber,
                 TransformerId = r.TransformerId,
                 CustomerId = r.CustomerId,
+                Customer = new CustomerDto
+                {
+                    Name = r.Transformer.Asset.Customer?.Name ?? string.Empty,
+                    Code = r.Transformer.Asset.Customer?.Code ?? string.Empty
+                },
                 SubstationId = r.SubstationId,
+                Substation = new SubstationDto
+                {
+                    Id = r.Transformer.Asset.SubstationId,
+                    Code = r.Transformer.Asset.Substation.Code,
+                    Name = r.Transformer.Asset.Substation.Name
+                },
+                AssetTypeId = r.AssetTypeId,
                 DateServiced = r.DateServiced,
                 Submitted = r.Submitted,
                 SubmittedDateTime = r.SubmittedDateTime,
@@ -49,6 +61,7 @@ public static class AuditReportEndpoints
                 ReportNumber = entity.ReportNumber,
                 TransformerId = entity.TransformerId,
                 CustomerId = entity.CustomerId,
+                AssetTypeId = entity.AssetTypeId,
                 SubstationId = entity.SubstationId,
                 DateServiced = entity.DateServiced,
                 Submitted = entity.Submitted,
@@ -67,14 +80,26 @@ public static class AuditReportEndpoints
         // GET by id
         group.MapGet("/byequid/{id:guid}", async (Guid id, IRepository<TransformerAuditReport> repo) =>
         {
-            var list = await repo.GetManyAsync(t => t.TransformerId == id);
+            var list = await repo.GetManyAsync(t => t.TransformerId == id, t => t.Transformer.Asset.Customer, t => t.Transformer.Asset.AssetType, t => t.Transformer.Asset.Substation);
             var result = list.Select(entity => new AuditReportDto
             {
                 Id = entity.Id,
                 ReportNumber = entity.ReportNumber,
                 TransformerId = entity.TransformerId,
                 CustomerId = entity.CustomerId,
+                Customer = new CustomerDto
+                {
+                    Name = entity.Transformer.Asset.Customer?.Name ?? string.Empty,
+                    Code = entity.Transformer.Asset.Customer?.Code ?? string.Empty
+                },
                 SubstationId = entity.SubstationId,
+                Substation = new SubstationDto
+                {
+                    Id = entity.Transformer.Asset.SubstationId,
+                    Code = entity.Transformer.Asset.Substation.Code,
+                    Name = entity.Transformer.Asset.Substation.Name
+                },
+                AssetTypeId = entity.AssetTypeId,
                 DateServiced = entity.DateServiced,
                 Submitted = entity.Submitted,
                 SubmittedDateTime = entity.SubmittedDateTime,
@@ -105,9 +130,8 @@ public static class AuditReportEndpoints
                 TransformerId = dto.TransformerId,
                 CustomerId = dto.CustomerId,
                 SubstationId = dto.SubstationId,
-                DateServiced = dto.DateServiced,
-                Submitted = dto.Submitted,
-                SubmittedDateTime = dto.SubmittedDateTime,
+                AssetTypeId = dto.AssetTypeId,
+                DateServiced = DateTime.UtcNow,
                 WindingTemperature = dto.WindingTemperature,
                 TransformerOilLevelPercent = dto.TransformerOilLevelPercent,
                 SilicaGelBreatherOk = dto.SilicaGelBreatherOk,
@@ -127,6 +151,7 @@ public static class AuditReportEndpoints
                 TransformerId = entity.TransformerId,
                 CustomerId = entity.CustomerId,
                 SubstationId = entity.SubstationId,
+                AssetTypeId = entity.AssetTypeId,
                 DateServiced = entity.DateServiced,
                 Submitted = entity.Submitted,
                 SubmittedDateTime = entity.SubmittedDateTime,
@@ -167,6 +192,7 @@ public static class AuditReportEndpoints
                 TransformerId = existing.TransformerId,
                 CustomerId = existing.CustomerId,
                 SubstationId = existing.SubstationId,
+                AssetTypeId = existing.AssetTypeId,
                 DateServiced = existing.DateServiced,
                 Submitted = existing.Submitted,
                 SubmittedDateTime = existing.SubmittedDateTime,
@@ -200,6 +226,7 @@ public static class AuditReportEndpoints
             existing.TransformerId = dto.TransformerId;
             existing.CustomerId = dto.CustomerId;
             existing.SubstationId = dto.SubstationId;
+            existing.AssetTypeId = dto.AssetTypeId;
             existing.DateServiced = dto.DateServiced;
             existing.WindingTemperature = dto.WindingTemperature;
             existing.TransformerOilLevelPercent = dto.TransformerOilLevelPercent;
@@ -219,6 +246,7 @@ public static class AuditReportEndpoints
                 TransformerId = existing.TransformerId,
                 CustomerId = existing.CustomerId,
                 SubstationId = existing.SubstationId,
+                AssetTypeId = existing.AssetTypeId,
                 DateServiced = existing.DateServiced,
                 Submitted = existing.Submitted,
                 SubmittedDateTime = existing.SubmittedDateTime,

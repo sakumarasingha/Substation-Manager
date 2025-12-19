@@ -20,7 +20,7 @@
     private async Task UpdateUnsubmittedAuditReport(AuditReportDto report)
     {
         var response = await Http.PutAsJsonAsync($"http://localhost:5124/auditreports/{id}", report);
-        NavigationManager.NavigateTo("/equipments");
+        NavigationManager.NavigateTo("/auditreports");
     }
 
 }
