@@ -1,4 +1,4 @@
-﻿@page "/equipments"
+@page "/equipments/details{id:guid}"
 @using SM.Shared
 @inject HttpClient Http
 @inject NavigationManager NavigationManager
@@ -47,6 +47,7 @@ else
 }
 
 @code {
+    [Parameter] public Guid id { get; set; }
     private List<TransformerDto> equipments = new List<TransformerDto>();
     private Guid? selectedTransformerId;
     void GoToListReports(Guid id) => NavigationManager.NavigateTo($"/auditreports/byequid/{id}");

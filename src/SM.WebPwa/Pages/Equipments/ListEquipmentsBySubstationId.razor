@@ -5,8 +5,8 @@
 
 
 <PageTitle>Equipments</PageTitle>
-
 <h1>Equipments</h1>
+
 @if (equipments == null)
 {
     <p><em>Loading...</em></p>
@@ -20,6 +20,7 @@ else
                 <th>Type</th>
                 <th>Substation</th>
                 <th>Customer</th>
+                <th>Actions</th>
             </tr>
         </thead>
         <tbody>
@@ -32,6 +33,9 @@ else
                     <td>@equipment?.Asset?.AssetType?.Name</td>
                     <td>@equipment?.Asset?.Substation?.Name</td>
                     <td>@equipment?.Asset?.Customer?.Name</td>
+                    <td>
+                        <button @onclick="() => GoToDetails(equipment.Id)">Details</button>
+                    </td>
                 </tr>
             }
         </tbody>
@@ -43,6 +47,8 @@ else
     [Parameter] public Guid id { get; set; }
 
     private Guid? selectedTransformerId;
+    void GoToCreate() => NavigationManager.NavigateTo("/equipments/create");
+    void GoToDetails(Guid id) => NavigationManager.NavigateTo($"/equipments/details/{id}");
     void GoToListReports(Guid id) => NavigationManager.NavigateTo($"/auditreports/byequid/{id}");
     protected override async Task OnInitializedAsync()
     {

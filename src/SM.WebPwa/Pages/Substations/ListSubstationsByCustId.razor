@@ -42,6 +42,7 @@ else
     [Parameter] public Guid id { get; set; }
     private Guid? selectedSubstationId;
     private List<SubstationDto> substations = new();
+    void GoToCreate() => NavigationManager.NavigateTo("/substations/create");
     void GoToListEquipments(Guid id) => NavigationManager.NavigateTo($"/equipments/bysubid/{id}");
     protected override async Task OnInitializedAsync()
     {

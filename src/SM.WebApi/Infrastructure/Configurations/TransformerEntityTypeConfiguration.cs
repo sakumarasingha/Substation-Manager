@@ -29,5 +29,22 @@ public class TransformerEntityTypeConfiguration : IEntityTypeConfiguration<Trans
                      .IsRequired()
                      .HasMaxLength(100);
 
+
+              builder.OwnsMany(e => e.Attachments, owned =>
+                         {
+                                owned.WithOwner().HasForeignKey("EquipmentId");
+
+                                // Optional: give the owned row its own key column
+                                owned.Property<Guid>("Id");
+                                owned.HasKey("Id");
+
+                                owned.Property(a => a.Name).IsRequired();
+                                owned.Property(a => a.ContentType).IsRequired();
+                                owned.Property(a => a.Bytes).IsRequired();
+
+                                owned.ToTable("AssetAttachments"); // optional table name
+                         });
+
+
        }
 }

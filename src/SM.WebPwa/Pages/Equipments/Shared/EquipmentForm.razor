@@ -1,5 +1,9 @@
 @using SM.Shared
 @using System.Globalization
+
+@using System.ComponentModel.DataAnnotations
+@using Microsoft.AspNetCore.Components.Forms
+
 @inject HttpClient Http
 @inject NavigationManager Nav
 @code {
@@ -8,7 +12,11 @@
     public Guid? CustomerId { get; set; }
     [Parameter] public TransformerDto Equipment { get; set; } = new TransformerDto();
     [Parameter] public EventCallback<TransformerDto> OnValidSubmit { get; set; }
+    [Parameter] public string? UploadEndpoint { get; set; }
 
+
+    private EditContext _editContext = default!;
+    private readonly long _maxFileSize = 5 * 1024 * 1024; // 5 MB per file limit
     private void Cancel()
     {
         // Navigate to the equipments list page
@@ -19,6 +27,10 @@
     private List<CustomerDto> customers = new();
     private List<SubstationDto> substations = new List<SubstationDto>();
     private List<AssetTypeDto> types = new List<AssetTypeDto>();
+    private List<AttachmentDto> Attachments { get; set; } = new();
+
+    private bool IsImage(string contentType)
+    => contentType.StartsWith("image/", StringComparison.OrdinalIgnoreCase);
     protected override async Task OnInitializedAsync()
     {
         Equipment.Asset = new AssetDto();
@@ -39,6 +51,59 @@
         List<SubstationDto>();
     }
 
+    private async Task OnFilesSelected(InputFileChangeEventArgs e)
+    {
+        foreach (var file in e.GetMultipleFiles())
+        {
+            var vm = new AttachmentDto
+            {
+                Name = file.Name,
+                Size = file.Size,
+                ContentType = file.ContentType
+            };
+
+            try
+            {
+                // Validate size
+                if (file.Size > _maxFileSize)
+                {
+                    vm.Error = $"File exceeds {_maxFileSize / (1024 * 1024)} MB limit.";
+                    Attachments.Add(vm);
+                    continue;
+                }
+
+                // Read bytes safely
+                using var stream = file.OpenReadStream(maxAllowedSize: _maxFileSize);
+                using var ms = new MemoryStream();
+                await stream.CopyToAsync(ms);
+                vm.Bytes = ms.ToArray();
+
+                // Preview for images
+                if (IsImage(vm.ContentType))
+                {
+                    var base64 = Convert.ToBase64String(vm.Bytes);
+                    vm.PreviewDataUrl = $"data:{vm.ContentType};base64,{base64}";
+                }
+
+                Attachments.Add(vm);
+            }
+            catch (Exception ex)
+            {
+                vm.Error = $"Failed to read file: {ex.Message}";
+                Attachments.Add(vm);
+            }
+        }
+    }
+    
+    private void RemoveAttachment(AttachmentDto vm)
+    {
+        Attachments.Remove(vm);
+    }
+
+    private void ClearAttachments()
+    {
+        Attachments.Clear();
+    }
 
 }
 
@@ -65,7 +130,7 @@
         </InputSelect>
     </div>
     <div class="form-field">
-        <label class="form-label" for="substation">Substation</label>
+        <label class="form-label" for="substation">Substation/Plant</label>
         <InputSelect id="substation" @bind-Value="Equipment.Asset.SubstationId" class="form-control">
             <option value="">-- Select Substation --</option>
             @if (substations is not null)
@@ -78,7 +143,7 @@
         </InputSelect>
     </div>
     <div class="form-field">
-        <label class="form-label" for="assettype">Equipment Type</label>
+        <label class="form-label" for="assettype">Equipment Category</label>
         <InputSelect id="assettype" @bind-Value="Equipment.Asset.AssetTypeId" class="form-control">
             <option value="">-- Select Equipment Type --</option>
             @if (substations is not null)
@@ -95,10 +160,11 @@
     @if (true)
     {
         <div class="form-field">
-            <label class="form-label" for="name">Name</label>
+            <label class="form-label" for="name">Equipment ID</label>
             <InputText id="name" @bind-Value="Equipment.Name" class="form-control" placeholder="Transformer 1" />
             <ValidationMessage For="@(() => Equipment.Name)" class="validation-message" />
         </div>
+
         <div class="form-field">
             <label class="form-label" for="serial">Serial Number</label>
             <InputText id="serial" class="form-control" @bind-Value="Equipment.SerialNumber" />
@@ -106,16 +172,77 @@
         </div>
 
         <div class="form-field">
-            <label class="form-label" for="manufacturer">Manufacturer Name</label>
+            <label class="form-label" for="manufacturer">Manufacturer of Name</label>
             <InputText id="manufacturer" class="form-control" @bind-Value="Equipment.ManufacturerName" />
             <ValidationMessage For="@(() => Equipment.ManufacturerName)" />
         </div>
 
         <div class="form-field">
             <label class="form-label" for="yom">Year Of Manufacture</label>
-            <InputNumber id="yom" class="form-control" @bind-Value="Equipment.YearOfManufacture" />
+            <InputNumber id="year" class="form-control" @bind-Value="Equipment.YearOfManufacture" />
             <ValidationMessage For="@(() => Equipment.YearOfManufacture)" />
         </div>
+
+        <div class="form-field">
+            <label class="form-label" for="yom">Rated Capacity (KVA)/Current(A)/Size</label>
+            <InputNumber id="ratedcapacity" class="form-control" @bind-Value="Equipment.RatedCapacity" TValue="double?" />
+            <ValidationMessage For="@(() => Equipment.RatedCapacity)" />
+        </div>
+
+        <div class="form-field">
+            <label class="form-label" for="yom">Primary/ Rated Voltage (V)</label>
+            <InputNumber id="primary voltage" class="form-control" @bind-Value="Equipment.PrimaryVoltage"
+                TValue="double?" />
+            <ValidationMessage For="@(() => Equipment.PrimaryVoltage)" />
+        </div>
+
+        <div class="form-field">
+            <label class="form-label" for="yom">Secondary/ Control Voltage (V)</label>
+            <InputNumber id="secondary voltage" class="form-control" @bind-Value="Equipment.SecondaryVoltage"
+                TValue="double?" />
+            <ValidationMessage For="@(() => Equipment.SecondaryVoltage)" />
+        </div>
+
+        <!-- Attachments -->
+        <div class="form-field">
+            <label class="form-label" for="attachments">Images / Attachments</label>
+
+            <InputFile id="attachments" OnChange="OnFilesSelected" multiple
+                accept=".png,.jpg,.jpeg,.pdf,.doc,.docx,.xls,.xlsx,.txt" />
+
+            <small class="text-muted d-block mt-1">
+                Allowed: PNG/JPG/GIF — max @(_maxFileSize / (1024 * 1024)) MB each
+            </small>
+            @if (Attachments.Count > 0)
+            {
+                <ul class="mt-3 list-unstyled">
+                    @foreach (var f in Attachments)
+                    {
+                        <li class="mb-2 p-2 border rounded">
+                            <div class="d-flex align-items-start gap-3">
+                                @if (IsImage(f.ContentType) && !string.IsNullOrEmpty(f.PreviewDataUrl))
+                                {
+                                    <img src="@f.PreviewDataUrl" alt="preview"
+                                        style="width: 120px; height: 90px; object-fit: contain; border: 1px solid #ddd;" />
+                                    <div class="text-muted">@f.ContentType — @(Math.Round(f.Size / 1024.0)) KB</div>
+                                    @if (!string.IsNullOrWhiteSpace(f.Error))
+                                    {
+                                        <div class="text-danger">@f.Error</div>
+                                    }
+
+                                }
+                            </div>
+                            <button type="button" class="btn btn-sm btn-outline-danger" @onclick="() => RemoveAttachment(f)">
+                                Remove
+                            </button>
+
+                        </li>
+
+                    }
+                </ul>
+            }
+        </div>
+
     }
 
     <div class="flex-row mt-2">

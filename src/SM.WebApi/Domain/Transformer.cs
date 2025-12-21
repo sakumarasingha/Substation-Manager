@@ -7,7 +7,7 @@ public class Transformer
 {
     [Key, ForeignKey("Asset")]
     public Guid Id { get; set; }   // same as Asset.Id
-   
+
 
     public required string Name { get; set; }
 
@@ -36,5 +36,11 @@ public class Transformer
 
     // Concurrency
     public byte[]? RowVersion { get; set; }
+    
+    
     public List<TransformerAuditReport> AuditReports { get; set; } = new();
+
+    public List<AssetAttachment>? Attachments { get; set; }
+
 }
+
